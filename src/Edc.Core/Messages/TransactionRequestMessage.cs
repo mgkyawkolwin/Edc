@@ -19,6 +19,11 @@ public class TransactionRequestMessage : RequestMessage
         _transactionType = transactionType;
     }
 
+    public string GetEcrRefNo()
+    {
+        return _ecrRefNo;
+    }
+
     public override byte[] GetMessage()
     {
         byte[] data = GetData();
@@ -49,6 +54,16 @@ public class TransactionRequestMessage : RequestMessage
     public override int GetDataLength()
     {
         return GetData().Length;
+    }
+
+    public string GetTerminalRefNo()
+    {
+        return _terminalRefNo;
+    }
+    
+    public byte GetTransactionType()
+    {
+        return (byte)_transactionType;
     }
 
 }

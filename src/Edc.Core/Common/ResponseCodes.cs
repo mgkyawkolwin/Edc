@@ -29,7 +29,4 @@ public static class ResponseCodes
     public const string WAITING_HOST_CONNECTION = "W2";
     public const string WAITING_HOST_RESPONSE = "W3";
     public const string WAITING_SIGNATURE = "W4";
-
-    public static bool IsApproved(string responseCode) => responseCode == APPROVED;
-    public static bool IsError(string responseCode) => responseCode != APPROVED;
 }
