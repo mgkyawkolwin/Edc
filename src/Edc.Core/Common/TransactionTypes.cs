@@ -25,6 +25,6 @@ public enum TransactionTypes : byte
     PRINT_SUMMARY_REPORT = 0x54,
     PRINT_DETAIL_REPORT = 0x55,
     REPRINT_RECEIPT = 0x56,
-    CONNECTION_TEST = 0x63,
     STATUS_UPDATE = 0x60,
+    CONNECTION_TEST = 0x63,
 }
