@@ -27,14 +27,18 @@ public class TransactionRequestMessage : RequestMessage
     public override byte[] GetMessage()
     {
         byte[] data = GetData();
+        byte[] dataWithLength =
+        [
+            .. BCDConverter.ToBCD(data.Length),
+            .. data,
+        ];
 
         return
         [
-            base.STX,
-            .. BCDConverter.ToBCD(data.Length),
-            .. data,
-            base.ETX,
-            LRCCalculator.Calculate(data)
+            Constants.STX,
+            .. dataWithLength,
+            Constants.ETX,
+            LRCCalculator.Calculate(dataWithLength)
         ];
     }
 
@@ -47,7 +51,7 @@ public class TransactionRequestMessage : RequestMessage
             .. Encoding.ASCII.GetBytes(Constants.MESSAGE_VERSION_V19),
             .. Encoding.ASCII.GetBytes(Helper.GetPaddedEcrRefNo(_ecrRefNo)),
             .. Encoding.ASCII.GetBytes(Helper.GetPaddedAmount(_amount)),
-            .. Encoding.ASCII.GetBytes(_terminalRefNo),
+            .. Encoding.ASCII.GetBytes(_terminalRefNo)
         ];
     }
 

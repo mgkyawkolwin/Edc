@@ -76,7 +76,7 @@ public class TransactionResponseMessage : ResponseMessage
         // start picking after 3 bytes (STX + Data Length) and exclude last 3 bytes (ETX + LRC)
         return
         [
-            .. _data.Take(new Range(3, _data.Length - 3))
+            .. _data.Take(new Range(1, _data.Length - 3))
         ];
     }
 
@@ -147,7 +147,7 @@ public class TransactionResponseMessage : ResponseMessage
 
     public override byte[] GetResponseCode()
     {
-        return [.. _data.Take(new Range(21, 22))];
+        return [.. _data.Take(new Range(40, 41))];
     }
 
     public bool GetSignatureNotRequiredIndicator()

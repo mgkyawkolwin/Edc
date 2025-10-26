@@ -21,6 +21,7 @@ public class EdcClient : IEdcClient, IDisposable
 
     public async Task<ResponseMessage> SendRequestAsync(RequestMessage requestMessage, CancellationToken cancellationToken = default)
     {
+        Console.WriteLine("Sending Request: " + BitConverter.ToString(requestMessage.GetMessage()));
         if (requestMessage == null) throw new ArgumentNullException(nameof(requestMessage));
         if (!_transport.IsConnected) throw new InvalidOperationException("Transport not connected");
 
@@ -39,11 +40,18 @@ public class EdcClient : IEdcClient, IDisposable
                 continue;
             }
 
+            Console.WriteLine("Response Data: " + BitConverter.ToString(data));
             var responseMessage = new TransactionResponseMessage(data);
             if (responseMessage.IsValid())
+            {
+                Console.WriteLine("Response LRC Verified");
                 await _transport.SendAsync([Constants.ACK], cancellationToken);
+            }
             else
+            {
+                Console.WriteLine("Response LRC Invalid");
                 await _transport.SendAsync([Constants.NAK], cancellationToken);
+            }
 
             return responseMessage;
         }
@@ -62,7 +70,7 @@ public class EdcClient : IEdcClient, IDisposable
                 await Task.Delay(50, cancellationToken);
                 continue;
             }
-            if (data[0] == Constants.ACK || data[0] == Constants.NAK) 
+            if (data[0] == Constants.ACK || data[0] == Constants.NAK)
                 return data[0];
         }
         return 0x00; // no control code

@@ -10,6 +10,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{C668
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleClient", "samples\SampleClient\SampleClient.csproj", "{43E4348E-6853-4F0E-89F2-A16EEF556B49}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestServer", "samples\TestServer\TestServer.csproj", "{1A61A69A-4B64-4A51-B534-6F558162AF64}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,10 @@ Global
 		{43E4348E-6853-4F0E-89F2-A16EEF556B49}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{43E4348E-6853-4F0E-89F2-A16EEF556B49}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{43E4348E-6853-4F0E-89F2-A16EEF556B49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A61A69A-4B64-4A51-B534-6F558162AF64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A61A69A-4B64-4A51-B534-6F558162AF64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A61A69A-4B64-4A51-B534-6F558162AF64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A61A69A-4B64-4A51-B534-6F558162AF64}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -49,5 +55,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{43E4348E-6853-4F0E-89F2-A16EEF556B49} = {C668C049-6EC2-41F2-9875-6471E8A19E52}
+		{1A61A69A-4B64-4A51-B534-6F558162AF64} = {C668C049-6EC2-41F2-9875-6471E8A19E52}
 	EndGlobalSection
 EndGlobal

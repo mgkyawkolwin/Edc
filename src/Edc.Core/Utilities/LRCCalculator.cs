@@ -12,6 +12,7 @@ public static class LRCCalculator
         {
             lrc ^= b;
         }
+        Console.WriteLine("Client Calculated LRC: " + lrc.ToString("X2"));
         return lrc;
     }
 
