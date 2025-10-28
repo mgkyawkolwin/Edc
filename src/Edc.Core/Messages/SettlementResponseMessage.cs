@@ -12,11 +12,13 @@ public class SettlementResponseMessage : ResponseMessage
         _data = data;
     }
 
+    public override string ResponseCode => throw new NotImplementedException();
+
     public decimal GetAmount()
     {
         return Decimal.Parse(
             Encoding.ASCII.GetString(
-                [.. _data.Take(new Range(DataFieldIndex.TransactionMessage.Response.Amount, DataFieldLength.Amount))]
+                _data.Take(new Range(DataFieldIndex.TransactionMessage.Response.Amount, DataFieldLength.Amount)).ToArray()
             )
         );
     }
@@ -24,84 +26,81 @@ public class SettlementResponseMessage : ResponseMessage
     public string GetApprovalCode()
     {
         return Encoding.ASCII.GetString(
-            [.. _data.Take(new Range(
+            _data.Take(new Range(
                 DataFieldIndex.TransactionMessage.Response.ApprovalCode,
                 DataFieldLength.ApprovalCode
-            ))]
+            )).ToArray()
         );
     }
 
     public string GetBatchNumber()
     {
         return Encoding.ASCII.GetString(
-            [.. _data.Take(new Range(
+            _data.Take(new Range(
                 DataFieldIndex.TransactionMessage.Response.BatchNumber,
                 DataFieldLength.BatchNumber
-            ))]
+            )).ToArray()
         );
     }
 
     public string GetCardExpiryDate()
     {
         return Encoding.ASCII.GetString(
-            [.. _data.Take(new Range(
+            _data.Take(new Range(
                 DataFieldIndex.TransactionMessage.Response.CardExpDate,
                 DataFieldLength.CardExpDate
-            ))]
+            )).ToArray()
         );
     }
 
     public string GetCardLabel()
     {
         return Encoding.ASCII.GetString(
-            [.. _data.Take(new Range(
+            _data.Take(new Range(
                 DataFieldIndex.TransactionMessage.Response.CardLabel,
                 DataFieldLength.CardLabel
-            ))]
+            )).ToArray()
         );
     }
 
     public string GetCardType()
     {
         return Encoding.ASCII.GetString(
-            [.. _data.Take(new Range(
+            _data.Take(new Range(
                 DataFieldIndex.TransactionMessage.Response.CardType,
                 DataFieldLength.CardType
-            ))]
+            )).ToArray()
         );
     }
 
-    public override byte[] GetData()
-    {
-        // start picking after 3 bytes (STX + Data Length) and exclude last 3 bytes (ETX + LRC)
-        return
-        [
-            .. _data.Take(new Range(3, _data.Length - 3))
-        ];
-    }
+    // public override byte[] GetData()
+    // {
+    //     // start picking after 3 bytes (STX + Data Length) and exclude last 3 bytes (ETX + LRC)
+    //     return _data.Take(new Range(3, _data.Length - 3)).ToArray();
+    // }
 
     public string GetDateTime()
     {
         return Encoding.ASCII.GetString(
-            [.. _data.Take(new Range(
+            _data.Take(new Range(
                 DataFieldIndex.TransactionMessage.Response.DateTime,
                 DataFieldLength.DateTime
-            ))]
+            )).ToArray()
         );
     }
 
-    public override int GetDataLength()
-    {
-        return GetData().Length;
-    }
+    // public override int GetDataLength()
+    // {
+    //     return GetData().Length;
+    // }
 
     public string GetEcrRefNo()
     {
         return Encoding.ASCII.GetString(
-            [.. _data.Take(new Range(
+            _data.Take(new Range(
                 DataFieldIndex.TransactionMessage.Response.EcrRefNo,
                 DataFieldLength.EcrRefNo
-            ))]
+            )).ToArray()
         );
     }
 
@@ -113,42 +112,32 @@ public class SettlementResponseMessage : ResponseMessage
     public string GetMerchantId()
     {
         return Encoding.ASCII.GetString(
-            [.. _data.Take(new Range(
+            _data.Take(new Range(
                 DataFieldIndex.TransactionMessage.Response.MerchantId,
                 DataFieldLength.MerchantId
-            ))]
+            )).ToArray()
         );
     }
 
-    public override byte[] GetMessage()
-    {
-        return _data;
-    }
+    // public override byte[] GetMessage()
+    // {
+    //     return _data;
+    // }
 
     public string GetPersonName()
     {
         return Encoding.ASCII.GetString(
-            [.. _data.Take(new Range(
+            _data.Take(new Range(
                 DataFieldIndex.TransactionMessage.Response.PersonName,
                 DataFieldLength.PersonName
-            ))]
+            )).ToArray()
         );
     }
 
-    public string GetPRN()
-    {
-        return Encoding.ASCII.GetString(
-            [.. _data.Take(new Range(
-                DataFieldIndex.TransactionMessage.Response.PRN,
-                DataFieldLength.PRN
-            ))]
-        );
-    }
-
-    public override byte[] GetResponseCode()
-    {
-        return [.. _data.Take(new Range(21, 22))];
-    }
+    // public override byte[] GetResponseCode()
+    // {
+    //     return _data.Take(new Range(21, 22)).ToArray();
+    // }
 
     public bool GetSignatureNotRequiredIndicator()
     {
@@ -158,10 +147,10 @@ public class SettlementResponseMessage : ResponseMessage
     public string GetTerminalId()
     {
         return Encoding.ASCII.GetString(
-            [.. _data.Take(new Range(
+            _data.Take(new Range(
                 DataFieldIndex.TransactionMessage.Response.TerminalId,
                 DataFieldLength.TerminalId
-            ))]
+            )).ToArray()
         );
     }
 
@@ -170,8 +159,8 @@ public class SettlementResponseMessage : ResponseMessage
         return (byte)0;
     }
 
-    public override bool IsValid()
-    {
-        return LRCCalculator.Verify(GetData(), GetLRC());
-    }
+    // public override bool IsValid()
+    // {
+    //     return LRCCalculator.Verify(GetData(), GetLRC());
+    // }
 }

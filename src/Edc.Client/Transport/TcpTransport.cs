@@ -12,7 +12,7 @@ public class TcpTransport : ITransport
 
     public bool IsConnected => _client?.Connected ?? false;
 
-    public TcpTransport(string host, int port, int receiveTimeoutMs = 30000)
+    public TcpTransport(string host, int port, int receiveTimeoutMs = 150000)
     {
         _host = host ?? throw new ArgumentNullException(nameof(host));
         _port = port;
@@ -21,6 +21,7 @@ public class TcpTransport : ITransport
 
     public async Task ConnectAsync(CancellationToken cancellationToken = default)
     {
+        Console.WriteLine($"Connecting to {_host}:{_port} ...");
         _client = new TcpClient();
         await _client.ConnectAsync(_host, _port);
         _stream = _client.GetStream();
@@ -44,9 +45,11 @@ public class TcpTransport : ITransport
 
     public async Task SendAsync(byte[] data, CancellationToken cancellationToken = default)
     {
-        if (!IsConnected) throw new InvalidOperationException("Transport not connected");
-        if (_stream == null) throw new InvalidOperationException("Stream is null");
         if (data == null || data.Length == 0) throw new ArgumentNullException(nameof(data));
+        if(_client == null || !_client.Connected)
+        {
+            await ConnectAsync(cancellationToken);
+        }
 
         await _stream.WriteAsync(data, cancellationToken);
         await _stream.FlushAsync(cancellationToken);
@@ -54,8 +57,10 @@ public class TcpTransport : ITransport
 
     public async Task<byte[]> ReceiveAsync(int maxBytes = 4096, CancellationToken cancellationToken = default)
     {
-        if (!IsConnected) throw new InvalidOperationException("Transport not connected");
-        if (_stream == null) throw new InvalidOperationException("Stream is null");
+        if (_client == null || !_client.Connected)
+        {
+            await ConnectAsync(cancellationToken);
+        }
 
         var buffer = new byte[maxBytes];
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -69,7 +74,7 @@ public class TcpTransport : ITransport
             Array.Copy(buffer, outBuf, read);
             return outBuf;
         }
-        catch (OperationCanceledException) { return []; }
-        catch (Exception) { return []; }
+        catch (OperationCanceledException) { return new byte[] { }; }
+        catch (Exception) { return new byte[] { }; }
     }
 }

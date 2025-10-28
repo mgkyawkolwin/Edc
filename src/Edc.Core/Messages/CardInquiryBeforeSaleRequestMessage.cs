@@ -24,37 +24,33 @@ public class CardInquiryBeforeSaleRequestMessage : RequestMessage
         return _ecrRefNo;
     }
 
-    public override byte[] GetMessage()
-    {
-        byte[] data = GetData();
+    // public override byte[] GetMessage()
+    // {
+    //     byte[] data = GetData();
 
-        return
-        [
-            base.STX,
-            .. BCDConverter.ToBCD(data.Length),
-            .. data,
-            base.ETX,
-            LRCCalculator.Calculate(data)
-        ];
-    }
+    //     return (byte[])new byte[] { }.Concat(new [] { STX })
+    //         .Concat(BCDConverter.ToBCD(data.Length))
+    //         .Concat(data)
+    //         .Concat(new [] { ETX })
+    //         .Concat(new [] { LRCCalculator.Calculate(data) });
+    // }
 
-    public override byte[] GetData()
-    {
-        return
-        [
-            (byte)Constants.SENDER_POS,
-            (byte) _transactionType,
-            .. Encoding.ASCII.GetBytes(Constants.MESSAGE_VERSION_V19),
-            .. Encoding.ASCII.GetBytes(Helper.GetPaddedEcrRefNo(_ecrRefNo)),
-            .. Encoding.ASCII.GetBytes(Helper.GetPaddedAmount(_amount)),
-            .. Encoding.ASCII.GetBytes(_terminalRefNo),
-        ];
-    }
+    // public override byte[] GetData()
+    // {
+    //     return (byte[])new byte[] {
+    //         (byte)Constants.SENDER_POS,
+    //         (byte) _transactionType,
+    //     }
+    //     .Concat(Encoding.ASCII.GetBytes(Constants.MESSAGE_VERSION_V18))
+    //     .Concat(Encoding.ASCII.GetBytes(Helper.GetPaddedEcrRefNo(_ecrRefNo)))
+    //     .Concat(Encoding.ASCII.GetBytes(Helper.GetPaddedAmount(_amount)))
+    //     .Concat(Encoding.ASCII.GetBytes(_terminalRefNo));
+    // }
 
-    public override int GetDataLength()
-    {
-        return GetData().Length;
-    }
+    // public override int GetDataLength()
+    // {
+    //     return GetData().Length;
+    // }
 
     public string GetTerminalRefNo()
     {

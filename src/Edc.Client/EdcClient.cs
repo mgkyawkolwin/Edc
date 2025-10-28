@@ -3,6 +3,7 @@ using Edc.Core.Common;
 using Edc.Core.Exceptions;
 using Edc.Core.Messages;
 using Edc.Core.Utilities;
+using Edc.Core.Factories;
 
 namespace Edc.Client;
 
@@ -21,18 +22,19 @@ public class EdcClient : IEdcClient, IDisposable
 
     public async Task<ResponseMessage> SendRequestAsync(RequestMessage requestMessage, CancellationToken cancellationToken = default)
     {
-        Console.WriteLine("Sending Request: " + BitConverter.ToString(requestMessage.GetMessage()));
         if (requestMessage == null) throw new ArgumentNullException(nameof(requestMessage));
         if (!_transport.IsConnected) throw new InvalidOperationException("Transport not connected");
 
-        await _transport.SendAsync(requestMessage.GetMessage(), cancellationToken);
+        await _transport.SendAsync(requestMessage.Message, cancellationToken);
 
         var ack = await WaitForControlCodeAsync(Constants.ACK_TIMEOUT_MS, cancellationToken);
+        Console.WriteLine("Received Control Code: " + ack.ToString("X2"));
         if (ack != Constants.ACK) throw new NotAcknowledgedException();
 
         var sw = System.Diagnostics.Stopwatch.StartNew();
         while (sw.ElapsedMilliseconds < Constants.RESPONSE_TIMEOUT_MS)
         {
+            Console.WriteLine("Waiting for response...");
             var data = await _transport.ReceiveAsync(Constants.RESPONSE_BUFFER_SIZE, cancellationToken);
             if (data == null || data.Length == 0)
             {
@@ -40,18 +42,19 @@ public class EdcClient : IEdcClient, IDisposable
                 continue;
             }
 
-            Console.WriteLine("Response Data: " + BitConverter.ToString(data));
-            var responseMessage = new TransactionResponseMessage(data);
-            if (responseMessage.IsValid())
-            {
-                Console.WriteLine("Response LRC Verified");
-                await _transport.SendAsync([Constants.ACK], cancellationToken);
-            }
-            else
-            {
-                Console.WriteLine("Response LRC Invalid");
-                await _transport.SendAsync([Constants.NAK], cancellationToken);
-            }
+            Console.WriteLine("Received Response Data: " + BitConverter.ToString(data));
+            var responseMessage = ResponseMessageFactory.CreateResponseMessage(data);
+            // if (responseMessage.IsValid())
+            // {
+            //     Console.WriteLine("Response LRC Verified, sending ACK response ...");
+            //     await _transport.SendAsync(new byte[] { Constants.ACK }, cancellationToken);
+            // }
+            // else
+            // {
+            //     Console.WriteLine("Response LRC Invalid, sending NAK response ...");
+            //     await _transport.SendAsync(new byte[] { Constants.NAK }, cancellationToken);
+            // }
+            await _transport.SendAsync(new byte[] { Constants.ACK }, cancellationToken);
 
             return responseMessage;
         }

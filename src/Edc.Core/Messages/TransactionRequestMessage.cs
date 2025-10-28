@@ -6,68 +6,49 @@ namespace Edc.Core.Messages;
 
 public class TransactionRequestMessage : RequestMessage
 {
-    private readonly decimal _amount;
-    private readonly string _ecrRefNo = "";
-    private readonly string _terminalRefNo;
-    private readonly TransactionTypes _transactionType;
+    private decimal _amount;
+    private string _ecrRefNo;
+    private string _terminalRefNo;
+    private TransactionTypes _transactionType;
 
-    public TransactionRequestMessage(string ecrRefNo, string terminalRefNo, TransactionTypes transactionType, decimal amount)
+    public TransactionRequestMessage(string ecrRefNo, decimal amount, TransactionTypes transactionType, string terminalRefNo = Constants.EMPTY_TERMINAL_REF_NO)
     {
-        _ecrRefNo = ecrRefNo;
         _amount = amount;
+        _ecrRefNo = ecrRefNo;
         _terminalRefNo = terminalRefNo;
         _transactionType = transactionType;
-    }
-
-    public string GetEcrRefNo()
-    {
-        return _ecrRefNo;
-    }
-
-    public override byte[] GetMessage()
-    {
-        byte[] data = GetData();
-        byte[] dataWithLength =
-        [
-            .. BCDConverter.ToBCD(data.Length),
-            .. data,
-        ];
-
-        return
-        [
-            Constants.STX,
-            .. dataWithLength,
-            Constants.ETX,
-            LRCCalculator.Calculate(dataWithLength)
-        ];
-    }
-
-    public override byte[] GetData()
-    {
-        return
-        [
-            (byte)Constants.SENDER_POS,
+        // Build the data field
+        byte[] _data = new byte[] {
+            (byte)SenderIndicator,
             (byte) _transactionType,
-            .. Encoding.ASCII.GetBytes(Constants.MESSAGE_VERSION_V19),
-            .. Encoding.ASCII.GetBytes(Helper.GetPaddedEcrRefNo(_ecrRefNo)),
-            .. Encoding.ASCII.GetBytes(Helper.GetPaddedAmount(_amount)),
-            .. Encoding.ASCII.GetBytes(_terminalRefNo)
-        ];
+        }
+        .Concat(Encoding.ASCII.GetBytes(MessageVersion))
+        .Concat(Encoding.ASCII.GetBytes(Helper.GetPaddedEcrRefNo(_ecrRefNo)))
+        .Concat(Encoding.ASCII.GetBytes(Helper.GetPaddedAmount(_amount)))
+        .Concat(Encoding.ASCII.GetBytes(_terminalRefNo)).ToArray();
+
+        // Compute BCD
+        byte[] bcd = BCDConverter.ToBCD(_data.Length);
+
+        // Calculate LRC
+        byte lrc = LRCCalculator.Calculate(
+            Array.Empty<byte>().Concat(bcd).Concat(_data).Concat(new byte[] { ETX }).ToArray()
+        );
+
+        // Build the complete message
+        _message = Array.Empty<byte>()
+            .Concat(new byte[] { STX })
+            .Concat(bcd)
+            .Concat(_data)
+            .Concat(new byte[] { ETX })
+            .Concat(new byte[] { lrc })
+            .ToArray();
     }
 
-    public override int GetDataLength()
-    {
-        return GetData().Length;
-    }
-
-    public string GetTerminalRefNo()
-    {
-        return _terminalRefNo;
-    }
-    
-    public byte GetTransactionType()
-    {
-        return (byte)_transactionType;
-    }
+    public decimal Amount => Convert.ToDecimal(
+        Encoding.ASCII.GetString(
+            _message.AsSpan(DataFieldIndex.TransactionMessage.Response.Amount, DataFieldLength.Amount)
+        )
+    );
 
 }

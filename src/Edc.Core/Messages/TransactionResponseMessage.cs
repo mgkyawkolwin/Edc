@@ -6,172 +6,88 @@ namespace Edc.Core.Messages;
 
 public class TransactionResponseMessage : ResponseMessage
 {
-    private readonly byte[] _data;
-    public TransactionResponseMessage(byte[] data)
+    public TransactionResponseMessage(byte[] message)
     {
-        _data = data;
+        _message = message;
     }
 
-    public decimal GetAmount()
-    {
-        return Decimal.Parse(
-            Encoding.ASCII.GetString(
-                [.. _data.Take(new Range(DataFieldIndex.TransactionMessage.Response.Amount, DataFieldLength.Amount))]
-            )
-        );
-    }
+    public string ApprovalCode => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.TransactionMessage.Response.ApprovalCode, DataFieldLength.ApprovalCode)
+    );
 
-    public string GetApprovalCode()
-    {
-        return Encoding.ASCII.GetString(
-            [.. _data.Take(new Range(
-                DataFieldIndex.TransactionMessage.Response.ApprovalCode,
-                DataFieldLength.ApprovalCode
-            ))]
-        );
-    }
+    public decimal Amount => Convert.ToDecimal(
+        Encoding.ASCII.GetString(
+            _message.AsSpan(DataFieldIndex.TransactionMessage.Response.Amount, DataFieldLength.Amount)
+        )
+    );
 
-    public string GetBatchNumber()
-    {
-        return Encoding.ASCII.GetString(
-            [.. _data.Take(new Range(
-                DataFieldIndex.TransactionMessage.Response.BatchNumber,
-                DataFieldLength.BatchNumber
-            ))]
-        );
-    }
+    public string BatchNumber => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.TransactionMessage.Response.BatchNumber, DataFieldLength.BatchNumber)
+    );
 
-    public string GetCardExpiryDate()
-    {
-        return Encoding.ASCII.GetString(
-            [.. _data.Take(new Range(
-                DataFieldIndex.TransactionMessage.Response.CardExpDate,
-                DataFieldLength.CardExpDate
-            ))]
-        );
-    }
+    public string CardExpDate => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.TransactionMessage.Response.CardExpDate, DataFieldLength.CardExpDate)
+    );
 
-    public string GetCardLabel()
-    {
-        return Encoding.ASCII.GetString(
-            [.. _data.Take(new Range(
-                DataFieldIndex.TransactionMessage.Response.CardLabel,
-                DataFieldLength.CardLabel
-            ))]
-        );
-    }
+    public string CardLabel => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.TransactionMessage.Response.CardLabel, DataFieldLength.CardLabel)
+    );
 
-    public string GetCardType()
-    {
-        return Encoding.ASCII.GetString(
-            [.. _data.Take(new Range(
-                DataFieldIndex.TransactionMessage.Response.CardType,
-                DataFieldLength.CardType
-            ))]
-        );
-    }
+    public string CardType => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.TransactionMessage.Response.CardType, DataFieldLength.CardType)
+    );
 
-    public override byte[] GetData()
-    {
-        // start picking after 3 bytes (STX + Data Length) and exclude last 3 bytes (ETX + LRC)
-        return
-        [
-            .. _data.Take(new Range(1, _data.Length - 3))
-        ];
-    }
+    public string DateTime => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.TransactionMessage.Response.DateTime, DataFieldLength.DateTime)
+    );
 
-    public string GetDateTime()
-    {
-        return Encoding.ASCII.GetString(
-            [.. _data.Take(new Range(
-                DataFieldIndex.TransactionMessage.Response.DateTime,
-                DataFieldLength.DateTime
-            ))]
-        );
-    }
+    public string EcrRefNo => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.TransactionMessage.Response.EcrRefNo, DataFieldLength.EcrRefNo)
+    );
 
-    public override int GetDataLength()
-    {
-        return GetData().Length;
-    }
+    public string EntryMode => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.TransactionMessage.Response.EntryMode, DataFieldLength.EntryMode)
+    );
 
-    public string GetEcrRefNo()
-    {
-        return Encoding.ASCII.GetString(
-            [.. _data.Take(new Range(
-                DataFieldIndex.TransactionMessage.Response.EcrRefNo,
-                DataFieldLength.EcrRefNo
-            ))]
-        );
-    }
+    public string MerchantId => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.TransactionMessage.Response.MerchantId, DataFieldLength.MerchantId)
+    );
 
-    public byte GetLRC()
-    {
-        return _data[_data.Length - 1];
-    }
+    public string PAN => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.TransactionMessage.Response.PAN, DataFieldLength.PAN)
+    );
 
-    public string GetMerchantId()
-    {
-        return Encoding.ASCII.GetString(
-            [.. _data.Take(new Range(
-                DataFieldIndex.TransactionMessage.Response.MerchantId,
-                DataFieldLength.MerchantId
-            ))]
-        );
-    }
+    public string PersonName => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.TransactionMessage.Response.PersonName, DataFieldLength.PersonName)
+    );
 
-    public override byte[] GetMessage()
-    {
-        return _data;
-    }
+    public string RedemptionAmount => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.TransactionMessage.Response.RedemptionAmount, DataFieldLength.RedemptionAmount)
+    );
 
-    public string GetPersonName()
-    {
-        return Encoding.ASCII.GetString(
-            [.. _data.Take(new Range(
-                DataFieldIndex.TransactionMessage.Response.PersonName,
-                DataFieldLength.PersonName
-            ))]
-        );
-    }
+    public string RRN => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.TransactionMessage.Response.RRN, DataFieldLength.RRN)
+    );
 
-    public string GetPRN()
-    {
-        return Encoding.ASCII.GetString(
-            [.. _data.Take(new Range(
-                DataFieldIndex.TransactionMessage.Response.PRN,
-                DataFieldLength.PRN
-            ))]
-        );
-    }
+    public string NetAmount => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.TransactionMessage.Response.NetAmount, DataFieldLength.NetAmount)
+    );
 
-    public override byte[] GetResponseCode()
-    {
-        return [.. _data.Take(new Range(40, 41))];
-    }
+    public string SignatureNotRequiredIndicator => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.TransactionMessage.Response.SignatureNotRequiredIndicator, DataFieldLength.SignatureNotRequiredIndicator)
+    );
 
-    public bool GetSignatureNotRequiredIndicator()
-    {
-        return _data[DataFieldIndex.TransactionMessage.Response.SignatureNotRequiredIndicator] != 0;
-    }
+    public string TerminalId => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.TransactionMessage.Response.TerminalId, DataFieldLength.TerminalId)
+    );
 
-    public string GetTerminalId()
-    {
-        return Encoding.ASCII.GetString(
-            [.. _data.Take(new Range(
-                DataFieldIndex.TransactionMessage.Response.TerminalId,
-                DataFieldLength.TerminalId
-            ))]
-        );
-    }
+    public string TerminalRefNo => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.TransactionMessage.Response.TerminalRefNo, DataFieldLength.TerminalRefNo)
+    );
 
-    public byte GetTransactionType()
-    {
-        return (byte)0;
-    }
+    public byte[] PrivateField => _message[DataFieldIndex.TransactionMessage.Response.PrivateField..^3];
 
-    public override bool IsValid()
-    {
-        return LRCCalculator.Verify(GetData(), GetLRC());
-    }
+    public override string ResponseCode => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.TransactionMessage.Response.ResponseCode, DataFieldLength.ResponseCode)
+    );
 }

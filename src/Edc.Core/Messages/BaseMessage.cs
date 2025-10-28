@@ -1,19 +1,42 @@
 using Edc.Core.Common;
+using Edc.Core.Utilities;
 
 namespace Edc.Core.Messages;
 
 public abstract class BaseMessage
 {
-    public byte STX { get; protected set; } = Constants.STX;
-    public char SenderIndicator { get; protected set; }
-    public byte TransactionType { get; protected set; }
-    public string MessageVersion { get; protected set; } = Constants.MESSAGE_VERSION_V18;
-    public byte ETX { get; protected set; } = Constants.ETX;
-    public byte LRC { get; protected set; }
+    // Protected members
+    protected byte[] _message = Array.Empty<byte>();
+    protected byte[] _data = Array.Empty<byte>();
+    private char _senderIndicator;
 
-    public abstract byte[] GetMessage();
+    // Public properties
+    public static byte STX => Constants.STX;
+    public int DataLength => BCDConverter.FromBCD(_message.AsSpan(1, 2).ToArray());
+    public virtual char SenderIndicator 
+    { 
+        get { return (char)_senderIndicator; } 
+        protected set { _senderIndicator = value; } 
+    }
+    public byte TransactionType => _data[DataFieldIndex.TransactionType];
+    public static string MessageVersion => Constants.MESSAGE_VERSION_V18;
 
-    public abstract byte[] GetData();
+    public byte[] Message => _message;
+    public byte[] Data => _message[3..^3]; // Exclude STX, ETX, LRC
+    public static byte ETX => Constants.ETX;
+    public byte LRC => _message[^1];
 
-    public abstract int GetDataLength();
+    // public abstract byte[] GetMessage();
+
+    // public abstract byte[] GetData();
+
+    // public abstract int GetDataLength();
+
+    public bool IsValidLRC()
+    {
+        byte calculatedLRC = LRCCalculator.Calculate(
+            _message[1..^1] // Exclude STX and LRC
+        );
+        return calculatedLRC == LRC;
+    }
 }

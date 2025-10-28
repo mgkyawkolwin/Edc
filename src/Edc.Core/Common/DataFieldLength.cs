@@ -19,9 +19,11 @@ public static class DataFieldLength
     public const int NetAmount = 12;
     public const int PAN = 20;
     public const int PersonName = 27;
-    public const int PRN = 12;
+    public const int PosDateTime = 14;
+    public const int PosID = 6;
     public const int RedemptionAmount = 12;
     public const int ResponseCode = 2;
+    public const int RRN = 12;
     public const int SenderIndicator = 1;
     public const int SignatureNotRequiredIndicator = 1;
     public const int STX = 1;

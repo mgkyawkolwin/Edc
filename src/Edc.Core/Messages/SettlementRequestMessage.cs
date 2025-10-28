@@ -17,34 +17,30 @@ public class SettlementRequestMessage : RequestMessage
         _transactionType = transactionType;
     }
 
-    public override byte[] GetMessage()
-    {
-        byte[] data = GetData();
+    // public override byte[] GetMessage()
+    // {
+    //     byte[] data = GetData();
 
-        return
-        [
-            base.STX,
-            .. BCDConverter.ToBCD(data.Length),
-            .. data,
-            base.ETX,
-            LRCCalculator.Calculate(data)
-        ];
-    }
+    //     return (byte[])new byte[] { }.Concat(new [] { STX })
+    //         .Concat(BCDConverter.ToBCD(data.Length))
+    //         .Concat(data)
+    //         .Concat(new [] { ETX })
+    //         .Concat(new [] { LRCCalculator.Calculate(data) });
+    // }
 
-    public override byte[] GetData()
-    {
-        return
-        [
-            (byte)Constants.SENDER_POS,
-            (byte) _transactionType,
-            .. Encoding.ASCII.GetBytes(Constants.MESSAGE_VERSION_V19)
-        ];
-    }
+    // public override byte[] GetData()
+    // {
+    //     return (byte[])new byte[] {
+    //         (byte)Constants.SENDER_POS,
+    //         (byte) _transactionType,
+    //     }
+    //     .Concat(Encoding.ASCII.GetBytes(Constants.MESSAGE_VERSION_V18));
+    // }
 
-    public override int GetDataLength()
-    {
-        return GetData().Length;
-    }
+    // public override int GetDataLength()
+    // {
+    //     return GetData().Length;
+    // }
     
     public byte GetTransactionType()
     {

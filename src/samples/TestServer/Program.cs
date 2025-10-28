@@ -111,7 +111,7 @@ class Program
         Console.WriteLine("STX Verified");
 
         byte lrc = 0;
-        for (int i = 1; i < data.Length - 2; i++)
+        for (int i = 1; i < data.Length - 1; i++)
         {
             lrc ^= data[i];
         }
@@ -136,7 +136,7 @@ class Program
             IsDuplicateTransaction(request, _lastTransactionResponses[ecrRef]))
         {
             Console.WriteLine("Duplicate transaction detected, returning last response");
-            return _lastTransactionResponses[ecrRef];
+            //return _lastTransactionResponses[ecrRef];
         }
 
         byte[] response = null;
@@ -625,13 +625,13 @@ class Program
         response.Add(request[4]);
 
         // Message Version
-        response.AddRange(new ArraySegment<byte>(request, 7, 3));
+        response.AddRange(new ArraySegment<byte>(request, 5, 3));
 
         // POS Date/Time
-        response.AddRange(new ArraySegment<byte>(request, 10, 14));
+        response.AddRange(new ArraySegment<byte>(request, 8, 14));
 
         // POS ID
-        response.AddRange(new ArraySegment<byte>(request, 24, 6));
+        response.AddRange(new ArraySegment<byte>(request, 22, 6));
 
         // Reserved
         response.AddRange(Encoding.ASCII.GetBytes("            ")); // 12 spaces
@@ -644,7 +644,7 @@ class Program
 
         // Calculate LRC
         byte lrc = 0;
-        for (int i = 1; i < response.Count - 1; i++)
+        for (int i = 1; i <= response.Count - 1; i++)
         {
             lrc ^= response[i];
         }

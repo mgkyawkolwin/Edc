@@ -1,7 +1,16 @@
+using Edc.Core.Common;
+
 namespace Edc.Core.Messages;
 
 public abstract class ResponseMessage : BaseMessage
 {
-    public abstract byte[] GetResponseCode();
-    public abstract bool IsValid();
+    public ResponseMessage()
+    {
+        SenderIndicator = Constants.SENDER_TERMINAL;
+    }
+
+    public abstract string ResponseCode { get;}
+
+    // public abstract byte[] GetResponseCode();
+    // public abstract bool IsValid();
 }
