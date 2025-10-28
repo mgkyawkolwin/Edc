@@ -67,12 +67,13 @@ public class EdcClient : IEdcClient, IDisposable
         var sw = System.Diagnostics.Stopwatch.StartNew();
         while (sw.ElapsedMilliseconds < timeoutMs)
         {
-            var data = await _transport.ReceiveAsync(1, cancellationToken);
+            var data = await _transport.ReceiveAsync(1024, cancellationToken);
             if (data == null || data.Length == 0)
             {
                 await Task.Delay(50, cancellationToken);
                 continue;
             }
+            Console.WriteLine("Received Control Code Data: " + BitConverter.ToString(data));
             if (data[0] == Constants.ACK || data[0] == Constants.NAK)
                 return data[0];
         }

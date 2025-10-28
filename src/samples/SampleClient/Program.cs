@@ -45,7 +45,8 @@ class Program
                     Console.WriteLine("Pleasa choose a transaction type:");
                     Console.WriteLine("1 - TEST CONNECTION");
                     Console.WriteLine("2 - CARD INQUIRY");
-                    Console.WriteLine("3 - SALE FULL PAYMENT");
+                    Console.WriteLine("3 - CARD INQUIRY BEFORE SALE");
+                    Console.WriteLine("4 - SALE FULL PAYMENT");
                     Console.WriteLine("0 - Exit Program");
                     string choice = Console.ReadLine() ?? "1";
                     switch (choice)
@@ -57,6 +58,9 @@ class Program
                             await Program.CardInquiryAsync();
                             break;
                         case "3":
+                            await Program.CardInquiryBeforeSaleAsync();
+                            break;
+                        case "4":
                             await Program.SimulateFullPaymentAsync();
                             break;
                         case "0":
@@ -110,9 +114,36 @@ class Program
 
     public static async Task CardInquiryAsync()
     {
+        Console.WriteLine("Preparing to send CARD INQUIRY message...");
+        var requestMsg = new CardInquiryRequestMessage(ECRRefNo, 0);
+        Console.WriteLine("Data Length: " + requestMsg.DataLength);
+        Console.WriteLine("Amount: " + requestMsg.Amount);
+        Console.WriteLine("Request Message: ");
+        Console.WriteLine(BitConverter.ToString(requestMsg.Message));
+        if (client == null)
+        {
+            throw new Exception("Client is not initialized");
+        }
+        Console.WriteLine("Sending message ...");
+        CardInquiryResponseMessage responseMsg = (CardInquiryResponseMessage)await client.SendRequestAsync(requestMsg);
+        Console.WriteLine("RESPONSE");
+        Console.WriteLine("Is Valid LRC: " + responseMsg.IsValidLRC());
+        Console.WriteLine("Response Code: " + responseMsg.ResponseCode);
+        Console.WriteLine("Data Length: " + responseMsg.DataLength);
+        Console.WriteLine("Amount: " + responseMsg.Amount);
+        Console.WriteLine("ApprovalCode: " + responseMsg.Amount);
+        Console.WriteLine("EcrRefNo: " + responseMsg.EcrRefNo);
+        Console.WriteLine("SenderIndicator: " + responseMsg.SenderIndicator);
+        Console.WriteLine("TransactionType: " + responseMsg.TransactionType);
+        Console.WriteLine("Response Message: ");
+        Console.WriteLine(BitConverter.ToString(responseMsg.Message));
+    }
+
+    public static async Task CardInquiryBeforeSaleAsync()
+    {
         Console.WriteLine("Please enter amount:");
         decimal amount = decimal.Parse(Console.ReadLine() ?? "0");
-        Console.WriteLine("Preparing to send CARD INQUIRY message...");
+        Console.WriteLine("Preparing to send CARD INQUIRY BEFORE message...");
         var requestMsg = new CardInquiryRequestMessage(ECRRefNo, amount);
         Console.WriteLine("Data Length: " + requestMsg.DataLength);
         Console.WriteLine("Amount: " + requestMsg.Amount);

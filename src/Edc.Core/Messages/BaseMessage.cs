@@ -18,7 +18,7 @@ public abstract class BaseMessage
         get { return (char)_senderIndicator; } 
         protected set { _senderIndicator = value; } 
     }
-    public byte TransactionType => _data[DataFieldIndex.TransactionType];
+    public byte TransactionType => _message[DataFieldIndex.TransactionType];
     public static string MessageVersion => Constants.MESSAGE_VERSION_V18;
 
     public byte[] Message => _message;

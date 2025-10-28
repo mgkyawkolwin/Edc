@@ -1,4 +1,5 @@
 using System.Net.Sockets;
+using Edc.Core.Common;
 
 namespace Edc.Client.Transport;
 
@@ -12,7 +13,7 @@ public class TcpTransport : ITransport
 
     public bool IsConnected => _client?.Connected ?? false;
 
-    public TcpTransport(string host, int port, int receiveTimeoutMs = 150000)
+    public TcpTransport(string host, int port, int receiveTimeoutMs = Constants.RESPONSE_TIMEOUT_MS)
     {
         _host = host ?? throw new ArgumentNullException(nameof(host));
         _port = port;

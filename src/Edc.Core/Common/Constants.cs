@@ -11,8 +11,8 @@ public static class Constants
     public const string EMPTY_TERMINAL_REF_NO = "\x20\x20\x20\x20\x20\x20";
 
     public const int MAX_RETRY_COUNT = 3;
-    public const int RESPONSE_TIMEOUT_MS = 120000; // 2 minutes
-    public const int ACK_TIMEOUT_MS = 2000; // 2 seconds
+    public const int RESPONSE_TIMEOUT_MS = 150000; // 2 minutes
+    public const int ACK_TIMEOUT_MS = 150000; // 2 seconds
 
     public const string MESSAGE_VERSION_V18 = "V18";
 
