@@ -16,7 +16,7 @@ public static class ResponseMessageFactory
             case TransactionTypes.CARD_ENQUIRY:
                 return new CardInquiryResponseMessage(data);
             case TransactionTypes.CARD_ENQUIRY_BEFORE_SALES:
-                return new CardInquiryResponseMessage(data);
+                return new CardInquiryBeforeSaleResponseMessage(data);
             default:
                 throw new NotSupportedException($"Unsupported transaction type: {data[4]:X2}");
         }

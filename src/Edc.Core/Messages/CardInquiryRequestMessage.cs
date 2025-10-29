@@ -6,13 +6,12 @@ namespace Edc.Core.Messages;
 
 public class CardInquiryRequestMessage : RequestMessage
 {
-    private decimal _amount;
+    private decimal _amount = 0.0M;
     private string _ecrRefNo;
     private string _terminalRefNo;
 
-    public CardInquiryRequestMessage(string ecrRefNo, decimal amount, string terminalRefNo = Constants.EMPTY_TERMINAL_REF_NO)
+    public CardInquiryRequestMessage(string ecrRefNo, string terminalRefNo = Constants.EMPTY_TERMINAL_REF_NO)
     {
-        _amount = amount;
         _ecrRefNo = ecrRefNo;
         _terminalRefNo = terminalRefNo;
         // Build the data field

@@ -4,9 +4,9 @@ using Edc.Core.Utilities;
 
 namespace Edc.Core.Messages;
 
-public class SettlementResponseMessage : ResponseMessage
+public class CardInquiryBeforeSaleResponseMessage : ResponseMessage
 {
-    public SettlementResponseMessage(byte[] message)
+    public CardInquiryBeforeSaleResponseMessage(byte[] message)
     {
         _message = message;
     }

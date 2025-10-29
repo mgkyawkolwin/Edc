@@ -115,7 +115,7 @@ class Program
     public static async Task CardInquiryAsync()
     {
         Console.WriteLine("Preparing to send CARD INQUIRY message...");
-        var requestMsg = new CardInquiryRequestMessage(ECRRefNo, 0);
+        var requestMsg = new CardInquiryRequestMessage(ECRRefNo);
         Console.WriteLine("Data Length: " + requestMsg.DataLength);
         Console.WriteLine("Amount: " + requestMsg.Amount);
         Console.WriteLine("Request Message: ");
@@ -144,7 +144,7 @@ class Program
         Console.WriteLine("Please enter amount:");
         decimal amount = decimal.Parse(Console.ReadLine() ?? "0");
         Console.WriteLine("Preparing to send CARD INQUIRY BEFORE message...");
-        var requestMsg = new CardInquiryRequestMessage(ECRRefNo, amount);
+        var requestMsg = new CardInquiryBeforeSaleRequestMessage(ECRRefNo, amount);
         Console.WriteLine("Data Length: " + requestMsg.DataLength);
         Console.WriteLine("Amount: " + requestMsg.Amount);
         Console.WriteLine("Request Message: ");
@@ -154,7 +154,7 @@ class Program
             throw new Exception("Client is not initialized");
         }
         Console.WriteLine("Sending message ...");
-        CardInquiryResponseMessage responseMsg = (CardInquiryResponseMessage)await client.SendRequestAsync(requestMsg);
+        CardInquiryBeforeSaleResponseMessage responseMsg = (CardInquiryBeforeSaleResponseMessage)await client.SendRequestAsync(requestMsg);
         Console.WriteLine("RESPONSE");
         Console.WriteLine("Is Valid LRC: " + responseMsg.IsValidLRC());
         Console.WriteLine("Response Code: " + responseMsg.ResponseCode);

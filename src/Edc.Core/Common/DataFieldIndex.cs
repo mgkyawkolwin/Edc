@@ -72,4 +72,34 @@ public static class DataFieldIndex
 
         }
     }
+
+    public static class SettlementMessage
+    {
+        public static class Request
+        {
+            public const int HostNumber = 28;
+            public const int PosDateTime = 8;
+            public const int PosID = 22;
+            public const int Reserved = 31;
+        }
+        public static class Response
+        {
+            public const int HostNumber = 28;
+            public const int PosDateTime = 8;
+            public const int PosID = 22;
+            public const int Reserved = 31;
+            public const int ResponseCode = 40;
+            public static class SettlementSummary
+            {
+                public const int HostCount = 42;
+                public const int HostNumber = 44;
+                public const int HostName = 46;
+                public const int SettlementResult = 55;
+                public const int TotalSaleCount = 56;
+                public const int TotalSaleAmount = 59;
+                public const int TotalRefundCount = 71;
+                public const int TotalRefundAmount = 74;                
+            }
+        }
+    }
 }

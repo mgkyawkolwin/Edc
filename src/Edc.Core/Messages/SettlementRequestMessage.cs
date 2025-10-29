@@ -6,45 +6,48 @@ namespace Edc.Core.Messages;
 
 public class SettlementRequestMessage : RequestMessage
 {
-    private readonly DateTime _dateTime;
-    private readonly string _posId ;
-    private readonly TransactionTypes _transactionType;
+    private DateTime _postDateTime;
+    private string _posID;
+    private int _hostNumber;
 
-    public SettlementRequestMessage(DateTime dateTime, TransactionTypes transactionType, string posId = "")
+    public SettlementRequestMessage(DateTime postDateTime, int hostNumber, string posID = Constants.EMPTY_POS_ID)
     {
-        _dateTime = dateTime;
-        _posId = posId;
-        _transactionType = transactionType;
+        _postDateTime = postDateTime;
+        _posID = posID;
+        _hostNumber = hostNumber;
+
+        // Build the data field
+        byte[] _data = new byte[] {
+            (byte)SenderIndicator,
+            (byte) TransactionTypes.SETTLEMENT,
+        }
+        .Concat(Encoding.ASCII.GetBytes(MessageVersion))
+        .Concat(Encoding.ASCII.GetBytes(DateTime.Now.ToString("yyyyMMddHHmmss")))
+        .Concat(Encoding.ASCII.GetBytes(_posID))
+        .Concat(Encoding.ASCII.GetBytes(Convert.ToString(_hostNumber))).ToArray();
+
+        // Compute BCD
+        byte[] bcd = BCDConverter.ToBCD(_data.Length);
+
+        // Calculate LRC
+        byte lrc = LRCCalculator.Calculate(
+            Array.Empty<byte>().Concat(bcd).Concat(_data).Concat(new byte[] { ETX }).ToArray()
+        );
+
+        // Build the complete message
+        _message = Array.Empty<byte>()
+            .Concat(new byte[] { STX })
+            .Concat(bcd)
+            .Concat(_data)
+            .Concat(new byte[] { ETX })
+            .Concat(new byte[] { lrc })
+            .ToArray();
     }
 
-    // public override byte[] GetMessage()
-    // {
-    //     byte[] data = GetData();
-
-    //     return (byte[])new byte[] { }.Concat(new [] { STX })
-    //         .Concat(BCDConverter.ToBCD(data.Length))
-    //         .Concat(data)
-    //         .Concat(new [] { ETX })
-    //         .Concat(new [] { LRCCalculator.Calculate(data) });
-    // }
-
-    // public override byte[] GetData()
-    // {
-    //     return (byte[])new byte[] {
-    //         (byte)Constants.SENDER_POS,
-    //         (byte) _transactionType,
-    //     }
-    //     .Concat(Encoding.ASCII.GetBytes(Constants.MESSAGE_VERSION_V18));
-    // }
-
-    // public override int GetDataLength()
-    // {
-    //     return GetData().Length;
-    // }
-    
-    public byte GetTransactionType()
-    {
-        return (byte)_transactionType;
-    }
+    public decimal Amount => Convert.ToDecimal(
+        Encoding.ASCII.GetString(
+            _message.AsSpan(DataFieldIndex.CardInquiryMessage.Response.Amount, DataFieldLength.Amount)
+        )
+    );
 
 }
