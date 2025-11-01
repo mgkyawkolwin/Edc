@@ -9,7 +9,7 @@ public static class Constants
     public const string EMPTY_POS_ID = "\x20\x20\x20\x20\x20\x20";
     public const string EMPTY_RESERVED_FIELD = "\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20";
     public const string EMPTY_TERMINAL_REF_NO = "\x20\x20\x20\x20\x20\x20";
-
+    public const string EMPTY_RECEIPT_TRACE_RESERVED_FIELD = "\x20\x20\x20";
     public const int MAX_RETRY_COUNT = 3;
     public const int RESPONSE_TIMEOUT_MS = 150000; // 2 minutes
     public const int ACK_TIMEOUT_MS = 150000; // 2 seconds

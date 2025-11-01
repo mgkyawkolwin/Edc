@@ -10,7 +10,4 @@ public abstract class ResponseMessage : BaseMessage
     }
 
     public abstract string ResponseCode { get;}
-
-    // public abstract byte[] GetResponseCode();
-    // public abstract bool IsValid();
 }

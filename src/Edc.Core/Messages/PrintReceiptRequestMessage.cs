@@ -6,59 +6,52 @@ namespace Edc.Core.Messages;
 
 public class PrintReceiptRequestMessage : RequestMessage
 {
-    private readonly decimal _amount;
-    private readonly string _ecrRefNo = "";
-    private readonly string _terminalRefNo;
-    private readonly TransactionTypes _transactionType;
+    private DateTime _postDateTime;
+    private string _posID;
+    private int _hostNumber;
 
-    public PrintReceiptRequestMessage(string ecrRefNo, string terminalRefNo, TransactionTypes transactionType, decimal amount)
+    public PrintReceiptRequestMessage(DateTime postDateTime, int hostNumber, int blockNumber, int invoiceTraceNo = 0, string posID = Constants.EMPTY_POS_ID)
     {
-        _ecrRefNo = ecrRefNo;
-        _amount = amount;
-        _terminalRefNo = terminalRefNo;
-        _transactionType = transactionType;
+        _postDateTime = postDateTime;
+        _posID = posID;
+        _hostNumber = hostNumber;
+
+        // Build the data field
+        byte[] _data = new byte[] {
+            (byte)SenderIndicator,
+            (byte) TransactionTypes.SETTLEMENT,
+        }
+        .Concat(Encoding.ASCII.GetBytes(MessageVersion))
+        .Concat(Encoding.ASCII.GetBytes(DateTime.Now.ToString("yyyyMMddHHmmss")))
+        .Concat(Encoding.ASCII.GetBytes(_posID))
+        .Concat(Encoding.ASCII.GetBytes(Convert.ToString(_hostNumber)))
+        .Concat(Encoding.ASCII.GetBytes(Helper.GetPaddedBlockNo(blockNumber)))
+        .Concat(Encoding.ASCII.GetBytes(Constants.EMPTY_RECEIPT_TRACE_RESERVED_FIELD))
+        .Concat(Encoding.ASCII.GetBytes(Helper.GetPaddedBlockNo(invoiceTraceNo)))
+        .ToArray();
+
+        // Compute BCD
+        byte[] bcd = BCDConverter.ToBCD(_data.Length);
+
+        // Calculate LRC
+        byte lrc = LRCCalculator.Calculate(
+            Array.Empty<byte>().Concat(bcd).Concat(_data).Concat(new byte[] { ETX }).ToArray()
+        );
+
+        // Build the complete message
+        _message = Array.Empty<byte>()
+            .Concat(new byte[] { STX })
+            .Concat(bcd)
+            .Concat(_data)
+            .Concat(new byte[] { ETX })
+            .Concat(new byte[] { lrc })
+            .ToArray();
     }
 
-    public string GetEcrRefNo()
-    {
-        return _ecrRefNo;
-    }
-
-    // public override byte[] GetMessage()
-    // {
-    //     byte[] data = GetData();
-    //     return (byte[])new byte[] { }.Concat(new[] { STX })
-    //         .Concat(BCDConverter.ToBCD(data.Length))
-    //         .Concat(data)
-    //         .Concat(new[] { ETX })
-    //         .Concat(new[] { LRCCalculator.Calculate(data) });
-    // }
-
-    // public override byte[] GetData()
-    // {
-    //     return (byte[])new byte[] {
-    //         (byte)Constants.SENDER_POS,
-    //         (byte) _transactionType,
-    //     }
-    //     .Concat(Encoding.ASCII.GetBytes(Constants.MESSAGE_VERSION_V18))
-    //     .Concat(Encoding.ASCII.GetBytes(Helper.GetPaddedEcrRefNo(_ecrRefNo)))
-    //     .Concat(Encoding.ASCII.GetBytes(Helper.GetPaddedAmount(_amount)))
-    //     .Concat(Encoding.ASCII.GetBytes(_terminalRefNo));
-    // }
-
-    // public override int GetDataLength()
-    // {
-    //     return GetData().Length;
-    // }
-
-    public string GetTerminalRefNo()
-    {
-        return _terminalRefNo;
-    }
-
-    public byte GetTransactionType()
-    {
-        return (byte)_transactionType;
-    }
+    public decimal Amount => Convert.ToDecimal(
+        Encoding.ASCII.GetString(
+            _message.AsSpan(DataFieldIndex.CardInquiryMessage.Response.Amount, DataFieldLength.Amount)
+        )
+    );
 
 }
