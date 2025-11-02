@@ -22,7 +22,7 @@ public class PrintReceiptRequestMessage : RequestMessage
     /// <param name="invoiceTraceNo">For printing of settlement/summary/detail report fills Number in with zeroes. For reprint receipt, fill in with Invoice/Trace Number of receipt to be reprinted, or 000000 for last transaction receipt.</param>
     /// <param name="posID">Put POS ID here. If not available just fill in with spaces.</param>
     public PrintReceiptRequestMessage(TransactionTypes transactionType = TransactionTypes.REPRINT_RECEIPT, DateTime posDateTime = new DateTime(), string hostNumber = "0", string blockNumber = "0", string invoiceTraceNo = "0", string posID = "")
-    {Console.WriteLine("0");
+    {
         _postDateTime = posDateTime;
         _posID = posID;
         _hostNumber = hostNumber;
@@ -33,20 +33,20 @@ public class PrintReceiptRequestMessage : RequestMessage
             (byte) transactionType,
         }
         .Concat(Encoding.ASCII.GetBytes(MessageVersion))
-        .Concat(Encoding.ASCII.GetBytes(DateTime.Now.ToString("yyyyMMddHHmmss")))
+        .Concat(Encoding.ASCII.GetBytes(DateTime.Now.ToString(Constants.DATETIME_FORMAT)))
         .Concat(Encoding.ASCII.GetBytes(Helper.GetSpacePaddedPosID(_posID)))
         .Concat(Encoding.ASCII.GetBytes(Helper.GetZeroPaddedHostNumber(_hostNumber)))
-        .Concat(Encoding.ASCII.GetBytes(Helper.GetPaddedBlockNo(blockNumber)))
+        .Concat(Encoding.ASCII.GetBytes(Helper.GetZeroPaddedBlockNo(blockNumber)))
         .Concat(Encoding.ASCII.GetBytes(Constants.EMPTY_RECEIPT_TRACE_RESERVED_FIELD))
-        .ToArray();Console.WriteLine("1");
+        .ToArray();
 
         // Compute BCD
-        byte[] bcd = BCDConverter.ToBCD(_data.Length);Console.WriteLine("2");
+        byte[] bcd = BCDConverter.ToBCD(_data.Length);
 
         // Calculate LRC
         byte lrc = LRCCalculator.Calculate(
             Array.Empty<byte>().Concat(bcd).Concat(_data).Concat(new byte[] { ETX }).ToArray()
-        );Console.WriteLine("3");
+        );
 
         // Build the complete message
         _message = Array.Empty<byte>()
@@ -55,7 +55,7 @@ public class PrintReceiptRequestMessage : RequestMessage
             .Concat(_data)
             .Concat(new byte[] { ETX })
             .Concat(new byte[] { lrc })
-            .ToArray();Console.WriteLine("4");
+            .ToArray();
     }
 
     public string PosDateTime => Encoding.ASCII.GetString(

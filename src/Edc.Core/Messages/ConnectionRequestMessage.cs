@@ -17,7 +17,7 @@ public class ConnectionRequestMessage : RequestMessage
             (byte) TransactionTypes.CONNECTION_TEST,
         }
         .Concat(Encoding.ASCII.GetBytes(MessageVersion))
-        .Concat(Encoding.ASCII.GetBytes(dateTime.ToString("yyyyMMddHHmmss")))
+        .Concat(Encoding.ASCII.GetBytes(dateTime.ToString(Constants.DATETIME_FORMAT)))
         .Concat(Encoding.ASCII.GetBytes(posId.PadLeft(DataFieldLength.PosID, Constants.SPACE_CHAR)))
         .Concat(Encoding.ASCII.GetBytes(Constants.EMPTY_RESERVED_FIELD)).ToArray();
 

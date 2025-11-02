@@ -28,6 +28,7 @@ public static class DataFieldLength
     public const int PosDateTime = 14;
     public const int PosID = 6;
     public const int PrintingDataLength = 3;
+    public const int ReceiptTraceNo = 6;
     public const int RedemptionAmount = 12;
     public const int Reserved = 15;
     public const int ResponseCode = 2;

@@ -6,24 +6,18 @@ namespace Edc.Core.Messages;
 
 public class CardInquiryBeforeSaleRequestMessage : RequestMessage
 {
-    private decimal _amount;
-    private string _ecrRefNo;
-    private string _terminalRefNo;
 
     public CardInquiryBeforeSaleRequestMessage(string ecrRefNo, decimal amount, string terminalRefNo = Constants.EMPTY_TERMINAL_REF_NO)
     {
-        _amount = amount;
-        _ecrRefNo = ecrRefNo;
-        _terminalRefNo = terminalRefNo;
         // Build the data field
         byte[] _data = new byte[] {
             (byte)SenderIndicator,
             (byte) TransactionTypes.CARD_ENQUIRY_BEFORE_SALES,
         }
         .Concat(Encoding.ASCII.GetBytes(MessageVersion))
-        .Concat(Encoding.ASCII.GetBytes(Helper.GetPaddedEcrRefNo(_ecrRefNo)))
-        .Concat(Encoding.ASCII.GetBytes(Helper.GetPaddedAmount(_amount)))
-        .Concat(Encoding.ASCII.GetBytes(_terminalRefNo)).ToArray();
+        .Concat(Encoding.ASCII.GetBytes(Helper.GetZeroPaddedEcrRefNo(ecrRefNo)))
+        .Concat(Encoding.ASCII.GetBytes(Helper.GetZeroPaddedAmount(amount)))
+        .Concat(Encoding.ASCII.GetBytes(terminalRefNo)).ToArray();
 
         // Compute BCD
         byte[] bcd = BCDConverter.ToBCD(_data.Length);

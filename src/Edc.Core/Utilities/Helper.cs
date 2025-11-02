@@ -15,23 +15,28 @@ public static class Helper
         return new DateTime(year, month, day, hour, min, sec);
     }
 
-    public static string GetPaddedAmount(decimal amount)
+    public static string GetZeroPaddedAmount(decimal amount)
     {
-        long amountInt = (long)(amount * 100);
-        string amountString = amountInt.ToString();
-        return amountString.PadLeft(12, '0');
+        long amountInt = (long)Math.Round(amount * 100, MidpointRounding.AwayFromZero);
+        return amountInt.ToString().PadLeft(DataFieldLength.Amount, '0');
     }
 
 
-    public static string GetPaddedBlockNo(string blockNumber)
+    public static string GetZeroPaddedBlockNo(string blockNumber)
     {
         return Convert.ToString(blockNumber).PadLeft(DataFieldLength.BlockNumber, '0');
     }
 
 
-    public static string GetPaddedEcrRefNo(string ecrRefNo)
+    public static string GetZeroPaddedEcrRefNo(string ecrRefNo)
     {
-        return new String(ecrRefNo).PadLeft(20, '0');
+        return ecrRefNo.PadRight(DataFieldLength.EcrRefNo, '0');
+    }
+
+
+    public static string GetZeroPaddedTerminalRefNo(string terminalRefNo)
+    {
+        return terminalRefNo.PadRight(DataFieldLength.EcrRefNo, '0');
     }
 
 
@@ -47,9 +52,9 @@ public static class Helper
     }
 
 
-    public static string GetPaddedReceiptTraceNo(int receiptTraceNo)
+    public static string GetZeroPaddedReceiptTraceNo(int receiptTraceNo)
     {
-        return Convert.ToString(receiptTraceNo).PadLeft(6, '0');
+        return Convert.ToString(receiptTraceNo).PadLeft(DataFieldLength.ReceiptTraceNo, '0');
     }
 
 }

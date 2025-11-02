@@ -11,12 +11,6 @@ public class CardInquiryResponseMessage : ResponseMessage
         _message = message;
     }
 
-    public decimal Amount => Convert.ToDecimal(
-        Encoding.ASCII.GetString(
-            _message.AsSpan(DataFieldIndex.CardInquiryMessage.Response.Amount, DataFieldLength.Amount)
-        )
-    );
-
     public string EcrRefNo => Encoding.ASCII.GetString(
         _message.AsSpan(DataFieldIndex.CardInquiryMessage.Response.EcrRefNo, DataFieldLength.EcrRefNo)
     );

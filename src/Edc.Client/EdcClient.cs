@@ -17,7 +17,11 @@ public class EdcClient : IEdcClient, IDisposable
         _transport = transport ?? throw new ArgumentNullException(nameof(transport));
     }
 
-    public async Task<ResponseMessage> SendRequestAsync(RequestMessage requestMessage, CancellationToken cancellationToken = default, int timeOutMs = Constants.RESPONSE_TIMEOUT_MS)
+    public async Task<ResponseMessage> SendRequestAsync(
+        RequestMessage requestMessage,
+        CancellationToken cancellationToken = default,
+        int timeOutMs = Constants.RESPONSE_TIMEOUT_MS,
+        Action<TransactionStatusUpdateResponseMessage>? onStatusUpdate = null)
     {
         byte acknowledgementResponse = 0x00;
         if (requestMessage == null) throw new ArgumentNullException(nameof(requestMessage));
@@ -41,6 +45,17 @@ public class EdcClient : IEdcClient, IDisposable
             }
 
             var responseMessage = ResponseMessageFactory.CreateResponseMessage(data);
+            if (responseMessage is TransactionStatusUpdateResponseMessage statusUpdate)
+            {
+                // Status update response received, return the message and wait for final response
+                if (responseMessage.IsValidLRC())
+                    await _transport.SendAsync(new byte[] { Constants.ACK }, cancellationToken);
+                else
+                    await _transport.SendAsync(new byte[] { Constants.NAK }, cancellationToken);
+                onStatusUpdate?.Invoke(statusUpdate);
+                sw.Restart();
+                continue;
+            }
             if (responseMessage.IsValidLRC())
                 await _transport.SendAsync(new byte[] { Constants.ACK }, cancellationToken);
             else

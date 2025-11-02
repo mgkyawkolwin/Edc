@@ -22,6 +22,8 @@ public static class ResponseMessageFactory
             case TransactionTypes.PRINT_DETAIL_REPORT:
             case TransactionTypes.REPRINT_RECEIPT:
                 return new PrintReceiptResponseMessage(data);
+            case TransactionTypes.STATUS_UPDATE:
+                return new TransactionStatusUpdateResponseMessage(data);
             default:
                 throw new NotSupportedException($"Unsupported transaction type: {data[4]:X2}");
         }

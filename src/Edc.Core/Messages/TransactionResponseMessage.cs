@@ -61,17 +61,21 @@ public class TransactionResponseMessage : ResponseMessage
         _message.AsSpan(DataFieldIndex.TransactionMessage.Response.PersonName, DataFieldLength.PersonName)
     );
 
-    public string RedemptionAmount => Encoding.ASCII.GetString(
-        _message.AsSpan(DataFieldIndex.TransactionMessage.Response.RedemptionAmount, DataFieldLength.RedemptionAmount)
-    );
+    public decimal RedemptionAmount => Convert.ToDecimal(
+        Encoding.ASCII.GetString(
+            _message.AsSpan(DataFieldIndex.TransactionMessage.Response.RedemptionAmount, DataFieldLength.RedemptionAmount)
+        )
+    ) / 100m;
 
     public string RRN => Encoding.ASCII.GetString(
         _message.AsSpan(DataFieldIndex.TransactionMessage.Response.RRN, DataFieldLength.RRN)
     );
 
-    public string NetAmount => Encoding.ASCII.GetString(
-        _message.AsSpan(DataFieldIndex.TransactionMessage.Response.NetAmount, DataFieldLength.NetAmount)
-    );
+    public decimal NetAmount => Convert.ToDecimal(
+        Encoding.ASCII.GetString(
+            _message.AsSpan(DataFieldIndex.TransactionMessage.Response.NetAmount, DataFieldLength.NetAmount)
+        )
+    ) / 100m;
 
     public string SignatureNotRequiredIndicator => Encoding.ASCII.GetString(
         _message.AsSpan(DataFieldIndex.TransactionMessage.Response.SignatureNotRequiredIndicator, DataFieldLength.SignatureNotRequiredIndicator)
@@ -85,7 +89,9 @@ public class TransactionResponseMessage : ResponseMessage
         _message.AsSpan(DataFieldIndex.TransactionMessage.Response.TerminalRefNo, DataFieldLength.TerminalRefNo)
     );
 
-    public byte[] PrivateField => _message[DataFieldIndex.TransactionMessage.Response.PrivateField..^3];
+    public string PrivateField => Encoding.ASCII.GetString(
+        _message[DataFieldIndex.TransactionMessage.Response.PrivateField..^3]
+    );
 
     public override string ResponseCode => Encoding.ASCII.GetString(
         _message.AsSpan(DataFieldIndex.TransactionMessage.Response.ResponseCode, DataFieldLength.ResponseCode)

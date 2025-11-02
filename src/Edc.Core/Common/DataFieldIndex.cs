@@ -95,6 +95,20 @@ public static class DataFieldIndex
         }
     }
 
+
+
+    public static class TransactionStatusUpdateMessage
+    {
+        public static class Response
+        {
+            public const int EcrRefNo = 8;
+            public const int Amount = 28;
+            public const int ResponseCode = 40;
+            public const int PrivateField = 42;
+
+        }
+    }
+
     public static class SettlementMessage
     {
         public static class Request

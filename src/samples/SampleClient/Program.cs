@@ -189,7 +189,7 @@ class Program
             throw new Exception("Client is not initialized");
         }
         Console.WriteLine("Sending message ...");
-        TransactionResponseMessage responseMsg = (TransactionResponseMessage)await client.SendRequestAsync(requestMsg);
+        TransactionResponseMessage responseMsg = (TransactionResponseMessage)await client.SendRequestAsync(requestMsg, onStatusUpdate: HandleStatusUpdate);
         Console.WriteLine("RESPONSE");
         Console.WriteLine("Is Valid LRC: " + responseMsg.IsValidLRC());
         Console.WriteLine("Response Code: " + responseMsg.ResponseCode);
@@ -213,6 +213,20 @@ class Program
         Console.WriteLine("SignatureNotRequiredIndicator: " + responseMsg.SignatureNotRequiredIndicator);
         Console.WriteLine("TerminalId: " + responseMsg.TerminalId);
         Console.WriteLine("PTerminalRefNo: " + responseMsg.TerminalRefNo);
+        Console.WriteLine("TransactionType: " + responseMsg.TransactionType);
+        Console.WriteLine("Response Message: ");
+        Console.WriteLine(BitConverter.ToString(responseMsg.Message));
+    }
+
+    public static void HandleStatusUpdate(TransactionStatusUpdateResponseMessage responseMsg)
+    {
+        Console.WriteLine("STATUS UPDATE RESPONSE");
+        Console.WriteLine("Is Valid LRC: " + responseMsg.IsValidLRC());
+        Console.WriteLine("Response Code: " + responseMsg.ResponseCode);
+        Console.WriteLine("Data Length: " + responseMsg.DataLength);
+        Console.WriteLine("Amount: " + responseMsg.Amount);
+        Console.WriteLine("EcrRefNo: " + responseMsg.EcrRefNo);
+        Console.WriteLine("SenderIndicator: " + responseMsg.SenderIndicator);
         Console.WriteLine("TransactionType: " + responseMsg.TransactionType);
         Console.WriteLine("Response Message: ");
         Console.WriteLine(BitConverter.ToString(responseMsg.Message));
