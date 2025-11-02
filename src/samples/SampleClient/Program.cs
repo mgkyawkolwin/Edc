@@ -123,7 +123,6 @@ class Program
         Console.WriteLine("Preparing to send CARD INQUIRY message...");
         var requestMsg = new CardInquiryRequestMessage(ECRRefNo);
         Console.WriteLine("Data Length: " + requestMsg.DataLength);
-        Console.WriteLine("Amount: " + requestMsg.Amount);
         Console.WriteLine("Request Message: ");
         Console.WriteLine(BitConverter.ToString(requestMsg.Message));
         if (client == null)
@@ -136,8 +135,6 @@ class Program
         Console.WriteLine("Is Valid LRC: " + responseMsg.IsValidLRC());
         Console.WriteLine("Response Code: " + responseMsg.ResponseCode);
         Console.WriteLine("Data Length: " + responseMsg.DataLength);
-        Console.WriteLine("Amount: " + responseMsg.Amount);
-        Console.WriteLine("ApprovalCode: " + responseMsg.Amount);
         Console.WriteLine("EcrRefNo: " + responseMsg.EcrRefNo);
         Console.WriteLine("SenderIndicator: " + responseMsg.SenderIndicator);
         Console.WriteLine("TransactionType: " + responseMsg.TransactionType);
@@ -179,7 +176,7 @@ class Program
         Console.WriteLine("Please enter amount:");
         decimal amount = decimal.Parse(Console.ReadLine() ?? "0");
         Console.WriteLine("Preparing to send TRANSACTION message...");
-        var requestMsg = new TransactionRequestMessage(ECRRefNo, amount, Edc.Core.Common.TransactionTypes.SALE_FULL_PAYMENT);
+        var requestMsg = new TransactionRequestMessage(ECRRefNo, amount, TransactionTypes.SALE_FULL_PAYMENT);
         Console.WriteLine("Data Length: " + requestMsg.DataLength);
         Console.WriteLine("POS Amount: " + requestMsg.Amount);
         Console.WriteLine("Request Message: ");
