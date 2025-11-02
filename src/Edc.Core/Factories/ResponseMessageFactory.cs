@@ -17,6 +17,11 @@ public static class ResponseMessageFactory
                 return new CardInquiryResponseMessage(data);
             case TransactionTypes.CARD_ENQUIRY_BEFORE_SALES:
                 return new CardInquiryBeforeSaleResponseMessage(data);
+            case TransactionTypes.PRINT_SETTLEMENT_REPORT:
+            case TransactionTypes.PRINT_SUMMARY_REPORT:
+            case TransactionTypes.PRINT_DETAIL_REPORT:
+            case TransactionTypes.REPRINT_RECEIPT:
+                return new PrintReceiptResponseMessage(data);
             default:
                 throw new NotSupportedException($"Unsupported transaction type: {data[4]:X2}");
         }

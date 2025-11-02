@@ -4,23 +4,28 @@ using Edc.Core.Utilities;
 
 namespace Edc.Core.Messages;
 
+/// <summary>
+/// Represents a connection response message.
+/// </summary>
 public class ConnectionResponseMessage : ResponseMessage
 {
-    // private readonly byte[] _data;
     public ConnectionResponseMessage(byte[] message)
     {
         _message = message;
     }
 
     public string PosDateTime => Encoding.ASCII.GetString(
-        _message.AsSpan(DataFieldIndex.ConnectionMessage.Response.PosDateTime , DataFieldLength.PosDateTime)
+        _message.AsSpan(DataFieldIndex.ConnectionMessage.Response.PosDateTime, DataFieldLength.PosDateTime)
     );
 
     public string PosID => Encoding.ASCII.GetString(
-        _message.AsSpan(DataFieldIndex.ConnectionMessage.Response.PosID , DataFieldLength.PosID)
+        _message.AsSpan(DataFieldIndex.ConnectionMessage.Response.PosID, DataFieldLength.PosID)
     );
 
+    /// <summary>
+    /// "00" - OK
+    /// </summary>
     public override string ResponseCode => Encoding.ASCII.GetString(
-        _message.AsSpan(DataFieldIndex.ConnectionMessage.Response.ResponseCode , DataFieldLength.ResponseCode)
+        _message.AsSpan(DataFieldIndex.ConnectionMessage.Response.ResponseCode, DataFieldLength.ResponseCode)
     );
 }

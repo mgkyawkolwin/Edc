@@ -5,6 +5,7 @@ public static class DataFieldLength
     public const int Amount = 12;
     public const int ApprovalCode = 6;
     public const int BatchNumber = 6;
+    public const int BlockNumber = 6;
     public const int CardExpDate = 4;
     public const int CardLabel = 10;
     public const int CardType = 2;
@@ -14,8 +15,10 @@ public static class DataFieldLength
     public const int EntryMode = 2;
     public const int ETX = 1;
     public const int HostCount = 2;
-    public const int HostNumber = 2;
+    public const int HostNumber = 3;
+    public const int HostNumberSettlement = 2;
     public const int HostName = 9;
+    public const int InvoiceTraceNumber = 6;
     public const int LRC = 1;
     public const int MerchantId = 15;
     public const int MessageVersion = 3;
@@ -24,6 +27,7 @@ public static class DataFieldLength
     public const int PersonName = 27;
     public const int PosDateTime = 14;
     public const int PosID = 6;
+    public const int PrintingDataLength = 3;
     public const int RedemptionAmount = 12;
     public const int Reserved = 15;
     public const int ResponseCode = 2;

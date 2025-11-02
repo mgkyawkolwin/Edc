@@ -35,6 +35,28 @@ public static class DataFieldIndex
         }
     }
 
+    public static class PrintReceiptMessage
+    {
+        public static class Request
+        {
+            public const int PosDateTime = 8;
+            public const int PosID = 22;
+            public const int HostNumber = 28;
+            public const int BlockNumber = 31;
+            public const int InvoiceTraceNumber = 37;
+        }
+        public static class Response
+        {
+            public const int PosDateTime = 8;
+            public const int PosID = 22;
+            public const int HostNumber = 28;
+            public const int BlockNumber = 31;
+            public const int PrintingDataLength = 37;
+            public const int ResponseCode = 40;
+            public const int PrintingData = 42;
+        }
+    }
+
     public static class TransactionMessage
     {
         public static class Request

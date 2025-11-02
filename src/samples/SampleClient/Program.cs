@@ -1,6 +1,7 @@
 using System.Text;
 using Edc.Client;
 using Edc.Client.Transport;
+using Edc.Core.Common;
 using Edc.Core.Messages;
 
 class Program
@@ -25,7 +26,7 @@ class Program
                 ip = newIp;
             }
             Console.WriteLine("Current EDC Port Number: " + port);
-            Console.WriteLine("Press Enter to use the current Port or type a new onex:");
+            Console.WriteLine("Press Enter to use the current Port or type a new one:");
             var newPort = Console.ReadLine();
             if (!string.IsNullOrEmpty(newPort) && int.TryParse(newPort, out int parsedPort))
             {
@@ -34,9 +35,6 @@ class Program
 
             ITransport transport = new TcpTransport(ip, port);
             client = new EdcClient(transport);
-            Console.WriteLine($"Connecting {ip}:{port}...");
-            await client.ConnectAsync();
-            Console.WriteLine("Connected!");
 
             while (continueChoice != 'N')
             {
@@ -47,6 +45,8 @@ class Program
                     Console.WriteLine("2 - CARD INQUIRY");
                     Console.WriteLine("3 - CARD INQUIRY BEFORE SALE");
                     Console.WriteLine("4 - SALE FULL PAYMENT");
+                    Console.WriteLine("5 - PRINT LAST RECEIPT");
+                    Console.WriteLine("6 - PRINT CUSTOM RECEIPT");
                     Console.WriteLine("0 - Exit Program");
                     string choice = Console.ReadLine() ?? "1";
                     switch (choice)
@@ -62,6 +62,12 @@ class Program
                             break;
                         case "4":
                             await Program.SimulateFullPaymentAsync();
+                            break;
+                        case "5":
+                            await Program.PrintReceipt();
+                            break;
+                        case "6":
+                            await Program.PrintCustomReceipt();
                             break;
                         case "0":
                             Environment.Exit(0);
@@ -90,7 +96,7 @@ class Program
     public static async Task TestConnection()
     {
         Console.WriteLine("Preparing to send TEST CONNECTION message...");
-        var requestMsg = new ConnectionRequestMessage();
+        var requestMsg = new ConnectionRequestMessage(DateTime.Now, "123");
         Console.WriteLine("Data Length: " + requestMsg.DataLength);
         Console.WriteLine("POS DateTime: " + requestMsg.PosDateTime);
         Console.WriteLine("POS ID: " + requestMsg.PosID);
@@ -208,6 +214,82 @@ class Program
         Console.WriteLine("TerminalId: " + responseMsg.TerminalId);
         Console.WriteLine("PTerminalRefNo: " + responseMsg.TerminalRefNo);
         Console.WriteLine("TransactionType: " + responseMsg.TransactionType);
+        Console.WriteLine("Response Message: ");
+        Console.WriteLine(BitConverter.ToString(responseMsg.Message));
+    }
+
+    public static async Task PrintReceipt()
+    {
+        Console.WriteLine("Preparing to send PRINT RECEIPT message...");
+        var requestMsg = new PrintReceiptRequestMessage(Edc.Core.Common.TransactionTypes.REPRINT_RECEIPT, DateTime.Now, "0", "0", "0", "123");
+        Console.WriteLine("Data Length: " + requestMsg.DataLength);
+        Console.WriteLine("POS DateTime: " + requestMsg.PosDateTime);
+        Console.WriteLine("POS ID: " + requestMsg.PosID);
+        Console.WriteLine("HostNumber: " + requestMsg.HostNumber);
+        Console.WriteLine("BlockNumber: " + requestMsg.BlockNumber);
+        Console.WriteLine("InvoiceTraceNumber: " + requestMsg.InvoiceTraceNumber);
+        Console.WriteLine("Request Message: ");
+        Console.WriteLine(BitConverter.ToString(requestMsg.Message));
+        if (client == null)
+        {
+            throw new Exception("Client is not initialized");
+        }
+        Console.WriteLine("Sending message ...");
+        PrintReceiptResponseMessage responseMsg = (PrintReceiptResponseMessage)await client.SendRequestAsync(requestMsg);
+        Console.WriteLine("RESPONSE");
+        Console.WriteLine("Is Valid LRC: " + responseMsg.IsValidLRC());
+        Console.WriteLine("Response Code: " + responseMsg.ResponseCode);
+        Console.WriteLine("Data Length: " + responseMsg.DataLength);
+        Console.WriteLine("POS DateTime: " + responseMsg.PosDateTime);
+        Console.WriteLine("POS ID: " + responseMsg.PosID);
+        Console.WriteLine("HostNumber: " + responseMsg.HostNumber);
+        Console.WriteLine("BlockNumber: " + responseMsg.BlockNumber);
+        Console.WriteLine("PrintingDataLength: " + responseMsg.PrintingDataLength);
+        Console.WriteLine("PrintingData: " + responseMsg.PrintingData);
+        Console.WriteLine("Response Message: ");
+        Console.WriteLine(BitConverter.ToString(responseMsg.Message));
+    }
+
+
+
+    public static async Task PrintCustomReceipt()
+    {
+        Console.WriteLine("Preparing to send PRINT CUSTOM RECEIPT message...");
+        Console.WriteLine("Please enter transaction type:");
+        var transactionType = Convert.ToByte(Console.ReadLine());
+        Console.WriteLine("Please enter host number");
+        var hostNumber = Console.ReadLine() ?? "0";
+        Console.WriteLine("Please enter block number");
+        var blockNumber = Console.ReadLine();
+        Console.WriteLine("Please enter invoice/trace number");
+        var invoiceNumber = Console.ReadLine();
+        Console.WriteLine("Please enter POS ID");
+        var posId = Console.ReadLine();
+        var requestMsg = new PrintReceiptRequestMessage((TransactionTypes)transactionType, DateTime.Now, hostNumber, blockNumber, invoiceNumber, posId);
+        Console.WriteLine("Data Length: " + requestMsg.DataLength);
+        Console.WriteLine("POS DateTime: " + requestMsg.PosDateTime);
+        Console.WriteLine("POS ID: " + requestMsg.PosID);
+        Console.WriteLine("HostNumber: " + requestMsg.HostNumber);
+        Console.WriteLine("BlockNumber: " + requestMsg.BlockNumber);
+        Console.WriteLine("InvoiceTraceNumber: " + requestMsg.InvoiceTraceNumber);
+        Console.WriteLine("Request Message: ");
+        Console.WriteLine(BitConverter.ToString(requestMsg.Message));
+        if (client == null)
+        {
+            throw new Exception("Client is not initialized");
+        }
+        Console.WriteLine("Sending message ...");
+        PrintReceiptResponseMessage responseMsg = (PrintReceiptResponseMessage)await client.SendRequestAsync(requestMsg);
+        Console.WriteLine("RESPONSE");
+        Console.WriteLine("Is Valid LRC: " + responseMsg.IsValidLRC());
+        Console.WriteLine("Response Code: " + responseMsg.ResponseCode);
+        Console.WriteLine("Data Length: " + responseMsg.DataLength);
+        Console.WriteLine("POS DateTime: " + responseMsg.PosDateTime);
+        Console.WriteLine("POS ID: " + responseMsg.PosID);
+        Console.WriteLine("HostNumber: " + responseMsg.HostNumber);
+        Console.WriteLine("BlockNumber: " + responseMsg.BlockNumber);
+        Console.WriteLine("PrintingDataLength: " + responseMsg.PrintingDataLength);
+        Console.WriteLine("PrintingData: " + responseMsg.PrintingData);
         Console.WriteLine("Response Message: ");
         Console.WriteLine(BitConverter.ToString(responseMsg.Message));
     }

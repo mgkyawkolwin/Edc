@@ -4,9 +4,12 @@ using Edc.Core.Utilities;
 
 namespace Edc.Core.Messages;
 
+/// <summary>
+/// Represents a connection request message.
+/// </summary>
 public class ConnectionRequestMessage : RequestMessage
 {
-    public ConnectionRequestMessage()
+    public ConnectionRequestMessage(DateTime dateTime = new DateTime(), string posId = "")
     {
         // Build the data field
         byte[] _data = new byte[] {
@@ -14,8 +17,8 @@ public class ConnectionRequestMessage : RequestMessage
             (byte) TransactionTypes.CONNECTION_TEST,
         }
         .Concat(Encoding.ASCII.GetBytes(MessageVersion))
-        .Concat(Encoding.ASCII.GetBytes(DateTime.Now.ToString("yyyyMMddHHmmss")))
-        .Concat(Encoding.ASCII.GetBytes(Constants.EMPTY_POS_ID))
+        .Concat(Encoding.ASCII.GetBytes(dateTime.ToString("yyyyMMddHHmmss")))
+        .Concat(Encoding.ASCII.GetBytes(posId.PadLeft(DataFieldLength.PosID, Constants.SPACE_CHAR)))
         .Concat(Encoding.ASCII.GetBytes(Constants.EMPTY_RESERVED_FIELD)).ToArray();
 
         // Compute BCD
@@ -37,11 +40,11 @@ public class ConnectionRequestMessage : RequestMessage
     }
 
     public string PosDateTime => Encoding.ASCII.GetString(
-        _message.AsSpan(DataFieldIndex.ConnectionMessage.Response.PosDateTime , DataFieldLength.PosDateTime)
+        _message.AsSpan(DataFieldIndex.ConnectionMessage.Response.PosDateTime, DataFieldLength.PosDateTime)
     );
 
     public string PosID => Encoding.ASCII.GetString(
-        _message.AsSpan(DataFieldIndex.ConnectionMessage.Response.PosID , DataFieldLength.PosID)
+        _message.AsSpan(DataFieldIndex.ConnectionMessage.Response.PosID, DataFieldLength.PosID)
     );
 
 }

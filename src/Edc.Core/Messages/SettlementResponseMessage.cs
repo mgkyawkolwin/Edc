@@ -11,19 +11,73 @@ public class SettlementResponseMessage : ResponseMessage
         _message = message;
     }
 
-    public decimal Amount => Convert.ToDecimal(
+    public string PosDateTime => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.SettlementMessage.Response.PosDateTime, DataFieldLength.PosDateTime)
+    );
+
+    public string PosID => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.SettlementMessage.Response.PosID, DataFieldLength.PosID)
+    );
+
+    public string HostNumber => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.SettlementMessage.Response.HostNumber, DataFieldLength.HostNumber)
+    );
+
+    public int HostCount => Convert.ToInt32(
         Encoding.ASCII.GetString(
-            _message.AsSpan(DataFieldIndex.CardInquiryMessage.Response.Amount, DataFieldLength.Amount)
+                _message.AsSpan(DataFieldIndex.SettlementMessage.Response.SettlementSummary.HostCount, DataFieldLength.HostCount)
         )
     );
 
-    public string EcrRefNo => Encoding.ASCII.GetString(
-        _message.AsSpan(DataFieldIndex.CardInquiryMessage.Response.EcrRefNo, DataFieldLength.EcrRefNo)
+    public string HostNumberSettlement => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.SettlementMessage.Response.SettlementSummary.HostNumber, DataFieldLength.HostNumberSettlement)
     );
 
-    public byte[] PrivateField => _message[DataFieldIndex.CardInquiryMessage.Response.PrivateField..^3];
+    public string HostName => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.SettlementMessage.Response.SettlementSummary.HostName, DataFieldLength.HostName)
+    );
 
+    public string SettlementResult => Encoding.ASCII.GetString(
+        _message.AsSpan(DataFieldIndex.SettlementMessage.Response.SettlementSummary.SettlementResult, DataFieldLength.SettlementResult)
+    );
+
+    public int TotalSaleCount => Convert.ToInt32(
+        Encoding.ASCII.GetString(
+                _message.AsSpan(DataFieldIndex.SettlementMessage.Response.SettlementSummary.TotalSaleCount, DataFieldLength.TotalSaleCount)
+        )
+    );
+
+    public decimal TotalSaleAmount => Convert.ToInt32(
+        Encoding.ASCII.GetString(
+                _message.AsSpan(DataFieldIndex.SettlementMessage.Response.SettlementSummary.TotalSaleAmount, DataFieldLength.TotalSaleAmount)
+        )
+    ) / 100m;
+
+    public int TotalRefuncCount => Convert.ToInt32(
+        Encoding.ASCII.GetString(
+                _message.AsSpan(DataFieldIndex.SettlementMessage.Response.SettlementSummary.TotalRefundCount, DataFieldLength.TotalRefundCount)
+        )
+    );
+
+    public decimal TotalRefundAmount => Convert.ToInt32(
+        Encoding.ASCII.GetString(
+                _message.AsSpan(DataFieldIndex.SettlementMessage.Response.SettlementSummary.TotalRefundAmount, DataFieldLength.TotalRefundAmount)
+        )
+    ) / 100m;
+
+
+
+    /// <summary>
+    /// 00 - Settlement successful
+    /// NU - All batches are empty. No settlement is performed.
+    /// ER - One or more host settlement failed.
+    /// </summary>
+    /// <remarks>
+    /// For multiple hosts settlement (settle ALL) terminal
+    /// will indicate failure if settlement of one or more host
+    /// failed. Refer to Settlement Summary for further information.
+    /// </remarks>
     public override string ResponseCode => Encoding.ASCII.GetString(
-        _message.AsSpan(DataFieldIndex.CardInquiryMessage.Response.ResponseCode, DataFieldLength.ResponseCode)
+        _message.AsSpan(DataFieldIndex.SettlementMessage.Response.ResponseCode, DataFieldLength.ResponseCode)
     );
 }
