@@ -38,6 +38,8 @@ public class EdcClient : IEdcClient, IDisposable
         while (timeOutMs == 0 || sw.ElapsedMilliseconds < timeOutMs)
         {
             var data = await _transport.ReceiveAsync(Constants.RESPONSE_BUFFER_SIZE, cancellationToken);
+            Console.WriteLine("Data Response Received:");
+            Console.WriteLine(BitConverter.ToString(data));
             if (data == null || data.Length == 0)
             {
                 await Task.Delay(100, cancellationToken);
@@ -74,6 +76,8 @@ public class EdcClient : IEdcClient, IDisposable
         while (timeoutMs == 0 || sw.ElapsedMilliseconds < timeoutMs)
         {
             var data = await _transport.ReceiveAsync(1, cancellationToken);
+            Console.WriteLine("Acknowdedgement Response Received:");
+            Console.WriteLine(BitConverter.ToString(data));
             if (data == null || data.Length == 0)
             {
                 await Task.Delay(50, cancellationToken);

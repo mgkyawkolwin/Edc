@@ -173,10 +173,16 @@ class Program
 
     public static async Task SimulateFullPaymentAsync()
     {
+        Console.WriteLine("Please enter ECR ref number (Press Enter to accept DEFAULT VALUE):");
+        string ecrRefNo = Console.ReadLine() ?? "0";
+        Console.WriteLine("Please enter Terminal Ref Number (Press Enter to accept DEFAULT VALUE):");
+        string terminalRefNo = Console.ReadLine() ?? "0";
+        Console.WriteLine("Please enter transaction type (Press Enter for SALE TRANSACTION):");
+        byte transactionType = Convert.ToByte(Console.ReadLine() ?? "30", 16);
         Console.WriteLine("Please enter amount:");
         decimal amount = decimal.Parse(Console.ReadLine() ?? "0");
         Console.WriteLine("Preparing to send TRANSACTION message...");
-        var requestMsg = new TransactionRequestMessage(ECRRefNo, amount, TransactionTypes.SALE_FULL_PAYMENT);
+        var requestMsg = new TransactionRequestMessage(ecrRefNo, amount, (TransactionTypes)transactionType);
         Console.WriteLine("Data Length: " + requestMsg.DataLength);
         Console.WriteLine("POS Amount: " + requestMsg.Amount);
         Console.WriteLine("Request Message: ");
@@ -267,7 +273,7 @@ class Program
     {
         Console.WriteLine("Preparing to send PRINT CUSTOM RECEIPT message...");
         Console.WriteLine("Please enter transaction type:");
-        var transactionType = Convert.ToByte(Console.ReadLine());
+        var transactionType = Convert.ToByte(Console.ReadLine(), 16);
         Console.WriteLine("Please enter host number");
         var hostNumber = Console.ReadLine() ?? "0";
         Console.WriteLine("Please enter block number");

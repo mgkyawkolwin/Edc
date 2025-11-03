@@ -10,6 +10,9 @@ public static class ResponseMessageFactory
         switch ((TransactionTypes)data[DataFieldIndex.TransactionType])
         {
             case TransactionTypes.SALE_FULL_PAYMENT:
+            case TransactionTypes.VOID:
+            case TransactionTypes.REFUND:
+            case TransactionTypes.TIP_ADJUST:
                 return new TransactionResponseMessage(data);
             case TransactionTypes.CONNECTION_TEST:
                 return new ConnectionResponseMessage(data);
