@@ -15,7 +15,7 @@ public class CardInquiryBeforeSaleRequestMessage : RequestMessage
             (byte) TransactionTypes.CARD_ENQUIRY_BEFORE_SALES,
         }
         .Concat(Encoding.ASCII.GetBytes(MessageVersion))
-        .Concat(Encoding.ASCII.GetBytes(Helper.GetZeroPaddedEcrRefNo(ecrRefNo)))
+        .Concat(Encoding.ASCII.GetBytes(Helper.GetSpacePaddedEcrRefNo(ecrRefNo)))
         .Concat(Encoding.ASCII.GetBytes(Helper.GetZeroPaddedAmount(amount)))
         .Concat(Encoding.ASCII.GetBytes(terminalRefNo)).ToArray();
 

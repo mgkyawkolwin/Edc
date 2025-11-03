@@ -182,7 +182,7 @@ class Program
         Console.WriteLine("Please enter amount:");
         decimal amount = decimal.Parse(Console.ReadLine() ?? "0");
         Console.WriteLine("Preparing to send TRANSACTION message...");
-        var requestMsg = new TransactionRequestMessage(ecrRefNo, amount, (TransactionTypes)transactionType);
+        var requestMsg = new TransactionRequestMessage(amount, ecrRefNo, (TransactionTypes)transactionType, terminalRefNo);
         Console.WriteLine("Data Length: " + requestMsg.DataLength);
         Console.WriteLine("POS Amount: " + requestMsg.Amount);
         Console.WriteLine("Request Message: ");

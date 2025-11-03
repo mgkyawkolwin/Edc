@@ -8,15 +8,40 @@ using System.Reflection.Metadata.Ecma335;
 
 namespace Edc.Client;
 
+/// <summary>
+/// The client to connect to ISO-8583 supproted EDC terminal devices. 
+/// </summary>
 public class EdcClient : IEdcClient, IDisposable
 {
     private readonly ITransport _transport;
 
+    /// <summary> 
+    /// The transport layer, currently supported TCP/IP connection.
+    /// You can extend to implement Serial Communication.
+    /// </summary>
+    /// <param name="transport"></param>
+    /// <exception cref="ArgumentNullException"></exception>
     public EdcClient(ITransport transport)
     {
         _transport = transport ?? throw new ArgumentNullException(nameof(transport));
     }
 
+    /// <summary>
+    /// The only function that client apps need to use.
+    /// </summary>
+    /// <param name="requestMessage">Message to be sent.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <param name="timeOutMs">Custom timeout value in milliseconds.</param>
+    /// <param name="onStatusUpdate">
+    /// For SALE transactions, there are a few case that the terminal is waiting
+    /// for the user input such as card swipe, key in, signature, etc.
+    /// For those cases terminal will return the status update messages.
+    /// Client can listen to this event and display corresponding message to notify user.
+    /// </param>
+    /// <returns>ResponseMessage - Need to cast to corresponding response message.</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="NotAcknowledgedException"></exception>
+    /// <exception cref="TimeoutException"></exception>
     public async Task<ResponseMessage> SendRequestAsync(
         RequestMessage requestMessage,
         CancellationToken cancellationToken = default,
@@ -30,8 +55,8 @@ public class EdcClient : IEdcClient, IDisposable
         if (acknowledgementResponse != Constants.ACK)
         {
             await _transport.DisconnectAsync();
-            throw new NotAcknowledgedException(); 
-        }  
+            throw new NotAcknowledgedException();
+        }
 
 
         var sw = System.Diagnostics.Stopwatch.StartNew();

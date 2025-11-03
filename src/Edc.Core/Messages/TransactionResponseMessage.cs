@@ -12,10 +12,7 @@ public class TransactionResponseMessage : ResponseMessage
     }
 
     /// <summary>
-    /// Approval code sent by the terminal.
-    /// 00 - Approved.
-    /// TA - Transaction Aborted.
-    /// See Edc.Core.Common.ResponseCodes for complete list.
+    /// Approval code sent by the host (Not terminal's code).
     /// </summary>
     public string ApprovalCode => Encoding.ASCII.GetString(
         _message.AsSpan(DataFieldIndex.TransactionMessage.Response.ApprovalCode, DataFieldLength.ApprovalCode)

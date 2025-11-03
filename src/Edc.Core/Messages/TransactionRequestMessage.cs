@@ -19,7 +19,7 @@ public class TransactionRequestMessage : RequestMessage
     /// For other type of transaction, pass zero.
     /// </param>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public TransactionRequestMessage(string ecrRefNo = "", decimal amount = 0, TransactionTypes transactionType = TransactionTypes.SALE_FULL_PAYMENT, string terminalRefNo = "")
+    public TransactionRequestMessage(decimal amount = 0, string ecrRefNo = "", TransactionTypes transactionType = TransactionTypes.SALE_FULL_PAYMENT, string terminalRefNo = "")
     {
         if (ecrRefNo.Length > DataFieldLength.EcrRefNo) throw new ArgumentOutOfRangeException(nameof(ecrRefNo), "ecrRefNo length should be <= 20");
         if (terminalRefNo.Length > DataFieldLength.TerminalRefNo) throw new ArgumentOutOfRangeException(nameof(terminalRefNo), "terminalRefNo length should be <= 6");
@@ -30,7 +30,7 @@ public class TransactionRequestMessage : RequestMessage
             (byte) transactionType,
         }
         .Concat(Encoding.ASCII.GetBytes(MessageVersion))
-        .Concat(Encoding.ASCII.GetBytes(Helper.GetZeroPaddedEcrRefNo(ecrRefNo)))
+        .Concat(Encoding.ASCII.GetBytes(Helper.GetSpacePaddedEcrRefNo(ecrRefNo)))
         .Concat(Encoding.ASCII.GetBytes(Helper.GetZeroPaddedAmount(amount)))
         .Concat(Encoding.ASCII.GetBytes(Helper.GetZeroPaddedTerminalRefNo(terminalRefNo))).ToArray();
 

@@ -28,15 +28,15 @@ public static class Helper
     }
 
 
-    public static string GetZeroPaddedEcrRefNo(string ecrRefNo)
+    public static string GetSpacePaddedEcrRefNo(string ecrRefNo)
     {
-        return ecrRefNo.PadRight(DataFieldLength.EcrRefNo, '0');
+        return ecrRefNo.PadRight(DataFieldLength.EcrRefNo, Constants.SPACE_CHAR);
     }
 
 
     public static string GetZeroPaddedTerminalRefNo(string terminalRefNo)
     {
-        return terminalRefNo.PadRight(DataFieldLength.EcrRefNo, '0');
+        return terminalRefNo.PadLeft(DataFieldLength.TerminalRefNo, '0');
     }
 
 
