@@ -43,9 +43,7 @@ To send a sale transaction message, you need to create TransactionRequestMessage
 Parameters are optional based on the transaction message type.
 For normal sale operation, you can just apply the amount or you can also apply the ECR Reference Number (POS app Id number if Applicable)
 ```c#
-// minimum argument supply, charge $10.00
-var requestMessage = new TransactionRequestMessage(10.00m);
-// OR supply ECR reference number
+// supply amount and the ECR reference number (Invoice Number, Transaction Reference Number)
 var requestMessage = new TransactionRequestMessage(10.00m, "ECR0001");
 
 // accept returning message, you need to cast to the correct response message
