@@ -5,17 +5,28 @@ using Edc.Core.Utilities;
 namespace Edc.Core.Messages;
 
 /// <summary>
-/// Represents a settlement request message
+/// Represents a settlement request message sent from the POS to the EDC terminal.
+/// Used to trigger the settlement process for all or specific hosts.
 /// </summary>
 public class SettlementRequestMessage : RequestMessage
 {
-
     /// <summary>
-    /// 
+    /// Initializes a new instance of the <see cref="SettlementRequestMessage"/> class.
+    /// Builds the complete message including STX, BCD length, data fields, ETX, and LRC.
     /// </summary>
-    /// <param name="postDateTime">Current datetime of pos machine or could be any reference value.</param>
-    /// <param name="hostNumber">000 - settle all hosts. NNN - host number of the batch to be printed.</param>
-    /// <param name="posID">Pos ID or empty space.</param>
+    /// <param name="postDateTime">
+    /// Current datetime of the POS machine or a reference datetime.
+    /// If not specified, defaults to <see cref="DateTime.MinValue"/>.
+    /// </param>
+    /// <param name="hostNumber">
+    /// The host number to settle. "000" to settle all hosts, or a specific 3-digit host number.
+    /// </param>
+    /// <param name="posID">
+    /// POS ID string (maximum 6 characters). If not specified, can be empty or space-padded.
+    /// </param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown if <paramref name="hostNumber"/> is longer than 3 characters or <paramref name="posID"/> is longer than 6 characters.
+    /// </exception>
     public SettlementRequestMessage(DateTime postDateTime = new DateTime(), string hostNumber = "0", string posID = "")
     {
         if (hostNumber.Length > 3) throw new ArgumentOutOfRangeException(nameof(hostNumber), "The length of hostNumner should be <= 3.");
@@ -49,18 +60,26 @@ public class SettlementRequestMessage : RequestMessage
             .ToArray();
     }
 
+    /// <summary>
+    /// Gets the POS DateTime included in the message.
+    /// </summary>
     public DateTime PosDateTime => Helper.GetDateTime(
         Encoding.ASCII.GetString(
             _message.AsSpan(DataFieldIndex.SettlementMessage.Request.PosDateTime, DataFieldLength.PosDateTime)
         )
     );
 
+    /// <summary>
+    /// Gets the POS ID included in the message.
+    /// </summary>
     public string PosID => Encoding.ASCII.GetString(
         _message.AsSpan(DataFieldIndex.SettlementMessage.Request.PosID, DataFieldLength.PosID)
     ).Trim();
 
+    /// <summary>
+    /// Gets the host number included in the message.
+    /// </summary>
     public string HostNumber => Encoding.ASCII.GetString(
         _message.AsSpan(DataFieldIndex.SettlementMessage.Request.HostNumber, DataFieldLength.HostNumber)
     ).Trim();
-
 }

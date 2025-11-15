@@ -9,39 +9,69 @@ using System.Reflection.Metadata.Ecma335;
 namespace Edc.Client;
 
 /// <summary>
-/// The client to connect to ISO-8583 supproted EDC terminal devices. 
+/// Client for communicating with ISO-8583 supported EDC terminal devices.
+/// Provides methods to send request messages and handle responses over a transport layer (TCP/IP currently).
 /// </summary>
+/// <remarks>
+/// This client handles acknowledgment codes (ACK/NAK), transaction status updates, and final responses.
+/// For SALE transactions, the terminal may send intermediate status updates (e.g., waiting for card swipe or PIN entry),
+/// which can be handled via the <see cref="SendRequestAsync"/> <paramref name="onStatusUpdate"/> callback.
+/// </remarks>
 public class EdcClient : IEdcClient, IDisposable
 {
     private readonly ITransport _transport;
 
-    /// <summary> 
-    /// The transport layer, currently supported TCP/IP connection.
-    /// You can extend to implement Serial Communication.
+    /// <summary>
+    /// Initializes a new instance of <see cref="EdcClient"/> with the specified transport layer.
     /// </summary>
-    /// <param name="transport"></param>
-    /// <exception cref="ArgumentNullException"></exception>
+    /// <param name="transport">The transport layer to use for communication. Must implement <see cref="ITransport"/>.</param>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="transport"/> is null.</exception>
     public EdcClient(ITransport transport)
     {
         _transport = transport ?? throw new ArgumentNullException(nameof(transport));
     }
 
     /// <summary>
-    /// The only function that client apps need to use.
+    /// Sends a request message to the EDC terminal and waits asynchronously for a response.
     /// </summary>
-    /// <param name="requestMessage">Message to be sent.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <param name="timeOutMs">Custom timeout value in milliseconds.</param>
+    /// <param name="requestMessage">The <see cref="RequestMessage"/> to send.</param>
+    /// <param name="cancellationToken">Optional token to cancel the operation.</param>
+    /// <param name="timeOutMs">Custom timeout in milliseconds to wait for the final response (default: <see cref="Constants.RESPONSE_TIMEOUT_MS"/>).</param>
     /// <param name="onStatusUpdate">
-    /// For SALE transactions, there are a few case that the terminal is waiting
-    /// for the user input such as card swipe, key in, signature, etc.
-    /// For those cases terminal will return the status update messages.
-    /// Client can listen to this event and display corresponding message to notify user.
+    /// Optional callback invoked when a <see cref="TransactionStatusUpdateResponseMessage"/> is received.
+    /// This allows the caller to handle intermediate transaction steps, such as card swipe, PIN entry, or signature prompt.
     /// </param>
-    /// <returns>ResponseMessage - Need to cast to corresponding response message.</returns>
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <exception cref="NotAcknowledgedException"></exception>
-    /// <exception cref="TimeoutException"></exception>
+    /// <returns>
+    /// A <see cref="ResponseMessage"/> representing the final response from the terminal.
+    /// The caller may need to cast it to the appropriate response type.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="requestMessage"/> is null.</exception>
+    /// <exception cref="NotAcknowledgedException">Thrown if the terminal does not acknowledge the request with an ACK.</exception>
+    /// <exception cref="TimeoutException">Thrown if the final response is not received within the specified <paramref name="timeOutMs"/>.</exception>
+    /// <remarks>
+    /// This method performs the following steps:
+    /// <list type="number">
+    /// <item>
+    /// <description>Sends the request message via the transport layer.</description>
+    /// </item>
+    /// <item>
+    /// <description>Waits for a single-byte ACK/NAK response. If not acknowledged, a <see cref="NotAcknowledgedException"/> is thrown.</description>
+    /// </item>
+    /// <item>
+    /// <description>Continuously reads data from the transport until a valid final response is received or the timeout expires.</description>
+    /// </item>
+    /// <item>
+    /// <description>If intermediate status update messages (<see cref="TransactionStatusUpdateResponseMessage"/>) are received, 
+    /// the <paramref name="onStatusUpdate"/> callback is invoked and the ACK/NAK is sent to the terminal.</description>
+    /// </item>
+    /// <item>
+    /// <description>Validates the LRC (Longitudinal Redundancy Check) of each response and sends an ACK/NAK accordingly.</description>
+    /// </item>
+    /// <item>
+    /// <description>Disconnects the transport after the final response or on timeout.</description>
+    /// </item>
+    /// </list>
+    /// </remarks>
     public async Task<ResponseMessage> SendRequestAsync(
         RequestMessage requestMessage,
         CancellationToken cancellationToken = default,
@@ -95,6 +125,12 @@ public class EdcClient : IEdcClient, IDisposable
         throw new TimeoutException("Timeout waiting for response");
     }
 
+    /// <summary>
+    /// Receives a single-byte control code (ACK or NAK) from the terminal.
+    /// </summary>
+    /// <param name="timeoutMs">Timeout in milliseconds to wait for the control code.</param>
+    /// <param name="cancellationToken">Optional token to cancel the operation.</param>
+    /// <returns>The control code received (ACK or NAK), or 0x00 if none received within the timeout.</returns>
     private async Task<byte> ReceiveControlCodeAsync(int timeoutMs, CancellationToken cancellationToken)
     {
         var sw = System.Diagnostics.Stopwatch.StartNew();
@@ -114,6 +150,9 @@ public class EdcClient : IEdcClient, IDisposable
         return 0x00; // no control code
     }
 
+    /// <summary>
+    /// Disposes the transport layer and releases any unmanaged resources.
+    /// </summary>
     public void Dispose()
     {
         _transport?.Dispose();

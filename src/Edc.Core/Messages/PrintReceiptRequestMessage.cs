@@ -5,7 +5,8 @@ using Edc.Core.Utilities;
 namespace Edc.Core.Messages;
 
 /// <summary>
-/// Request message to retrieve print/report message.
+/// Represents a request message to retrieve or print a report or receipt from the EDC terminal.
+/// Can be used for reprint, settlement report, summary report, or detail report based on the <see cref="TransactionTypes"/> specified.
 /// </summary>
 public class PrintReceiptRequestMessage : RequestMessage
 {
@@ -14,14 +15,33 @@ public class PrintReceiptRequestMessage : RequestMessage
     private string _hostNumber;
 
     /// <summary>
-    /// 
+    /// Initializes a new instance of the <see cref="PrintReceiptRequestMessage"/> class.
     /// </summary>
-    /// <param name="posDateTime">Current DateTime of pos application.</param>
-    /// <param name="hostNumber">0 - all host. N - host number of the batch to be printed.</param>
-    /// <param name="blockNumber">For the first package, send 000000. Subsequently 000001, 000002, until last block as sent by terminal.</param>
-    /// <param name="invoiceTraceNo">For printing of settlement/summary/detail report fills Number in with zeroes. For reprint receipt, fill in with Invoice/Trace Number of receipt to be reprinted, or 000000 for last transaction receipt.</param>
-    /// <param name="posID">Put POS ID here. If not available just fill in with spaces.</param>
-    public PrintReceiptRequestMessage(TransactionTypes transactionType = TransactionTypes.REPRINT_RECEIPT, DateTime posDateTime = new DateTime(), string hostNumber = "0", string blockNumber = "0", string invoiceTraceNo = "0", string posID = "")
+    /// <param name="transactionType">
+    /// Type of transaction/report to request. For example:
+    /// <see cref="TransactionTypes.REPRINT_RECEIPT"/> for receipt reprint.
+    /// </param>
+    /// <param name="posDateTime">Current POS DateTime. Default is <see cref="DateTime.MinValue"/>.</param>
+    /// <param name="hostNumber">
+    /// Host number to print from. "0" means all hosts; otherwise, specify host number of batch to print.
+    /// </param>
+    /// <param name="blockNumber">
+    /// For the first package, send "000000". For subsequent packages, increment sequentially
+    /// until the last block as sent by terminal.
+    /// </param>
+    /// <param name="invoiceTraceNo">
+    /// For printing settlement/summary/detail reports, fill with zeroes.
+    /// For reprint receipt, fill with invoice/trace number of receipt to be reprinted,
+    /// or "000000" for the last transaction receipt.
+    /// </param>
+    /// <param name="posID">POS identifier. If unavailable, fill with spaces.</param>
+    public PrintReceiptRequestMessage(
+        TransactionTypes transactionType = TransactionTypes.REPRINT_RECEIPT,
+        DateTime posDateTime = new DateTime(),
+        string hostNumber = "0",
+        string blockNumber = "0",
+        string invoiceTraceNo = "0",
+        string posID = "")
     {
         _postDateTime = posDateTime;
         _posID = posID;
@@ -58,24 +78,38 @@ public class PrintReceiptRequestMessage : RequestMessage
             .ToArray();
     }
 
+    /// <summary>
+    /// Gets the POS DateTime field from the message.
+    /// </summary>
     public string PosDateTime => Encoding.ASCII.GetString(
         _message.AsSpan(DataFieldIndex.PrintReceiptMessage.Request.PosDateTime, DataFieldLength.PosDateTime)
     );
 
+    /// <summary>
+    /// Gets the POS ID field from the message.
+    /// </summary>
     public string PosID => Encoding.ASCII.GetString(
         _message.AsSpan(DataFieldIndex.PrintReceiptMessage.Request.PosID, DataFieldLength.PosID)
     );
 
+    /// <summary>
+    /// Gets the host number field from the message.
+    /// </summary>
     public string HostNumber => Encoding.ASCII.GetString(
         _message.AsSpan(DataFieldIndex.PrintReceiptMessage.Request.HostNumber, DataFieldLength.HostNumber)
     );
 
+    /// <summary>
+    /// Gets the block number field from the message.
+    /// </summary>
     public string BlockNumber => Encoding.ASCII.GetString(
         _message.AsSpan(DataFieldIndex.PrintReceiptMessage.Request.BlockNumber, DataFieldLength.BlockNumber)
     );
 
+    /// <summary>
+    /// Gets the invoice/trace number field from the message.
+    /// </summary>
     public string InvoiceTraceNumber => Encoding.ASCII.GetString(
         _message.AsSpan(DataFieldIndex.PrintReceiptMessage.Request.InvoiceTraceNumber, DataFieldLength.InvoiceTraceNumber)
     );
-
 }

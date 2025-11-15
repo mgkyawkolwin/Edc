@@ -1,5 +1,9 @@
 namespace Edc.Core.Common;
 
+/// <summary>
+/// Defines byte indexes for various fields in EDC messages.
+/// These constants are used to parse request and response messages for different transaction types.
+/// </summary>
 public static class DataFieldIndex
 {
     public const int STX = 0;
@@ -96,7 +100,6 @@ public static class DataFieldIndex
     }
 
 
-
     public static class TransactionStatusUpdateMessage
     {
         public static class Response
@@ -134,7 +137,7 @@ public static class DataFieldIndex
                 public const int TotalSaleCount = 56;
                 public const int TotalSaleAmount = 59;
                 public const int TotalRefundCount = 71;
-                public const int TotalRefundAmount = 74;                
+                public const int TotalRefundAmount = 74;
             }
         }
     }

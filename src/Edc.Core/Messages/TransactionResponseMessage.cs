@@ -4,31 +4,39 @@ using Edc.Core.Utilities;
 
 namespace Edc.Core.Messages;
 
+/// <summary>
+/// Represents a transaction response message received from the host.
+/// Contains transaction details such as approval, card info, amounts, and terminal info.
+/// </summary>
 public class TransactionResponseMessage : ResponseMessage
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TransactionResponseMessage"/> class.
+    /// </summary>
+    /// <param name="message">The raw byte array of the message.</param>
     public TransactionResponseMessage(byte[] message)
     {
         _message = message;
     }
 
     /// <summary>
-    /// Approval code sent by the host (Not terminal's code).
+    /// Approval code sent by the host (not terminal's code).
     /// </summary>
     public string ApprovalCode => Encoding.ASCII.GetString(
         _message.AsSpan(DataFieldIndex.TransactionMessage.Response.ApprovalCode, DataFieldLength.ApprovalCode)
     );
 
     /// <summary>
-    /// Transaction amount, as sent in request message.
+    /// Transaction amount as sent in the request message.
     /// </summary>
     public decimal Amount => Convert.ToDecimal(
         Encoding.ASCII.GetString(
             _message.AsSpan(DataFieldIndex.TransactionMessage.Response.Amount, DataFieldLength.Amount)
         )
-    );
+    ) / 100m;
 
     /// <summary>
-    /// Batch number from the terminal. Daily transactions are batched together. Later can be used to settle by settlement request message.
+    /// Batch number from the terminal. Daily transactions are batched together.
     /// </summary>
     public string BatchNumber => Encoding.ASCII.GetString(
         _message.AsSpan(DataFieldIndex.TransactionMessage.Response.BatchNumber, DataFieldLength.BatchNumber)
@@ -42,31 +50,21 @@ public class TransactionResponseMessage : ResponseMessage
     );
 
     /// <summary>
-    /// Card label. Example, VISA, MASTER, JCB
+    /// Card label (e.g., VISA, MASTER, JCB).
     /// </summary>
     public string CardLabel
     {
         get
         {
-            var span = _message.AsSpan(
-                DataFieldIndex.TransactionMessage.Response.CardLabel,
-                DataFieldLength.CardLabel
-            );
-
-            // Find null terminator (0x00)
+            var span = _message.AsSpan(DataFieldIndex.TransactionMessage.Response.CardLabel, DataFieldLength.CardLabel);
             int nullIndex = span.IndexOf((byte)0x00);
-
-            // Slice up to the null (or full length if none)
             var stringBytes = nullIndex >= 0 ? span[..nullIndex] : span;
-
             return Encoding.ASCII.GetString(stringBytes);
         }
-
     }
 
     /// <summary>
-    /// Card type. Example, VI, MC, AM
-    /// See Edc.Core.Common.CardTypes.cs for complete list.
+    /// Card type (e.g., VI, MC, AM). See <see cref="Edc.Core.Common.CardTypes"/> for full list.
     /// </summary>
     public string CardType => Encoding.ASCII.GetString(
         _message.AsSpan(DataFieldIndex.TransactionMessage.Response.CardType, DataFieldLength.CardType)
@@ -82,16 +80,15 @@ public class TransactionResponseMessage : ResponseMessage
     );
 
     /// <summary>
-    /// Electronics Cash Register (ECR) reference number.
-    /// Sent by the ECR.
+    /// Electronic Cash Register (ECR) reference number sent by the ECR.
     /// </summary>
     public string EcrRefNo => Encoding.ASCII.GetString(
         _message.AsSpan(DataFieldIndex.TransactionMessage.Response.EcrRefNo, DataFieldLength.EcrRefNo)
     );
 
     /// <summary>
-    /// Entry mode of the payment. Example, 05 - Chip/Insert, 07 - Contactless, 02 - Mag-Stripe.
-    /// See Edc.Core.Common.EntryModes.cs for complete list.
+    /// Entry mode of the payment (e.g., 05 - Chip/Insert, 07 - Contactless, 02 - Mag-Stripe).
+    /// See <see cref="Edc.Core.Common.EntryModes"/> for full list.
     /// </summary>
     public string EntryMode => Encoding.ASCII.GetString(
         _message.AsSpan(DataFieldIndex.TransactionMessage.Response.EntryMode, DataFieldLength.EntryMode)
@@ -105,53 +102,35 @@ public class TransactionResponseMessage : ResponseMessage
     );
 
     /// <summary>
-    /// Personal account number.
+    /// Personal account number (PAN).
     /// </summary>
-    public string PAN 
+    public string PAN
     {
         get
         {
-            var span = _message.AsSpan(
-                DataFieldIndex.TransactionMessage.Response.PAN,
-                DataFieldLength.PAN
-            );
-
-            // Find null terminator (0x00)
+            var span = _message.AsSpan(DataFieldIndex.TransactionMessage.Response.PAN, DataFieldLength.PAN);
             int nullIndex = span.IndexOf((byte)0x00);
-
-            // Slice up to the null or empty string
             var stringBytes = nullIndex > 0 ? span[..nullIndex] : Array.Empty<byte>();
-
             return Encoding.ASCII.GetString(stringBytes);
         }
-
     }
 
     /// <summary>
-    /// Card holder name.
+    /// Card holder's name.
     /// </summary>
-    public string PersonName 
+    public string PersonName
     {
         get
         {
-            var span = _message.AsSpan(
-                DataFieldIndex.TransactionMessage.Response.PersonName,
-                DataFieldLength.PersonName
-            );
-
-            // Find null terminator (0x00)
+            var span = _message.AsSpan(DataFieldIndex.TransactionMessage.Response.PersonName, DataFieldLength.PersonName);
             int nullIndex = span.IndexOf((byte)0x00);
-
-            // Slice up to the null or empty string
             var stringBytes = nullIndex > 0 ? span[..nullIndex] : span;
-
             return Encoding.ASCII.GetString(stringBytes);
         }
-
     }
 
     /// <summary>
-    /// For loyalty transaction, this will be redemption amount.
+    /// For loyalty transactions, this is the redemption amount.
     /// </summary>
     public decimal RedemptionAmount => Convert.ToDecimal(
         Encoding.ASCII.GetString(
@@ -159,12 +138,15 @@ public class TransactionResponseMessage : ResponseMessage
         )
     ) / 100m;
 
+    /// <summary>
+    /// Retrieval reference number.
+    /// </summary>
     public string RRN => Encoding.ASCII.GetString(
         _message.AsSpan(DataFieldIndex.TransactionMessage.Response.RRN, DataFieldLength.RRN)
     );
 
     /// <summary>
-    /// Net amount after rededcution amount deducted.
+    /// Net amount after deduction of redemption amount.
     /// </summary>
     public decimal NetAmount => Convert.ToDecimal(
         Encoding.ASCII.GetString(
@@ -173,7 +155,7 @@ public class TransactionResponseMessage : ResponseMessage
     ) / 100m;
 
     /// <summary>
-    /// True - signature required. False - signature NOT required.
+    /// True if signature is NOT required, false if signature is required.
     /// </summary>
     public bool SignatureNotRequiredIndicator => Convert.ToBoolean(
         _message[DataFieldIndex.TransactionMessage.Response.SignatureNotRequiredIndicator]
@@ -194,17 +176,14 @@ public class TransactionResponseMessage : ResponseMessage
     );
 
     /// <summary>
-    /// Additional data in TLV (Tag, Length, Value) format.
-    /// Tag is 2 bytes characters, 3 bytes data length and the data.
-    /// Will contain zero or more TLV fields.
+    /// Additional data in TLV (Tag-Length-Value) format. May contain zero or more TLV fields.
     /// </summary>
     public string PrivateField => Encoding.ASCII.GetString(
         _message[DataFieldIndex.TransactionMessage.Response.PrivateField..^3]
     );
 
     /// <summary>
-    /// Reponse code of the terminal.
-    /// See Edc.Core.Common.ResponseCodes.cs for complete list.
+    /// Response code of the terminal. See <see cref="Edc.Core.Common.ResponseCodes"/> for full list.
     /// </summary>
     public override string ResponseCode => Encoding.ASCII.GetString(
         _message.AsSpan(DataFieldIndex.TransactionMessage.Response.ResponseCode, DataFieldLength.ResponseCode)

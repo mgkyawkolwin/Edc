@@ -1,5 +1,9 @@
 namespace Edc.Core.Common;
 
+/// <summary>
+/// Defines standard lengths for specific fields in EDC messages.
+/// These constants are used when constructing or parsing ISO-8583 or custom terminal messages.
+/// </summary>
 public static class DataFieldLength
 {
     public const int Amount = 12;

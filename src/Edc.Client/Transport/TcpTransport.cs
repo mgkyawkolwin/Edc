@@ -3,6 +3,10 @@ using Edc.Core.Common;
 
 namespace Edc.Client.Transport;
 
+/// <summary>
+/// Implementation of <see cref="ITransport"/> that communicates with an EDC terminal over TCP.
+/// Handles connection management, sending, and receiving raw byte data with configurable timeouts.
+/// </summary>
 public class TcpTransport : ITransport
 {
     private readonly string _host;
@@ -11,6 +15,13 @@ public class TcpTransport : ITransport
     private NetworkStream? _stream;
     private readonly int _receiveTimeoutMs;
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="TcpTransport"/> with the specified host, port, and receive timeout.
+    /// </summary>
+    /// <param name="host">The hostname or IP address of the EDC terminal.</param>
+    /// <param name="port">The TCP port to connect to.</param>
+    /// <param name="receiveTimeoutMs">The receive timeout in milliseconds (default is <see cref="Constants.RESPONSE_TIMEOUT_MS"/>).</param>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="host"/> is null.</exception>
     public TcpTransport(string host, int port, int receiveTimeoutMs = Constants.RESPONSE_TIMEOUT_MS)
     {
         _host = host ?? throw new ArgumentNullException(nameof(host));
@@ -18,6 +29,12 @@ public class TcpTransport : ITransport
         _receiveTimeoutMs = receiveTimeoutMs;
     }
 
+    /// <summary>
+    /// Establishes a TCP connection to the terminal if not already connected.
+    /// </summary>
+    /// <param name="cancellationToken">Optional token to cancel the connection attempt.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous connect operation.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the connection could not be established.</exception>
     private async Task ConnectAsync(CancellationToken cancellationToken = default)
     {
         _client ??= new TcpClient();
@@ -28,6 +45,7 @@ public class TcpTransport : ITransport
         _stream.WriteTimeout = _receiveTimeoutMs;
     }
 
+    /// <inheritdoc/>
     public Task DisconnectAsync()
     {
         _stream?.Dispose();
@@ -37,6 +55,7 @@ public class TcpTransport : ITransport
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc/>
     public void Dispose()
     {
         _stream?.Dispose();
@@ -46,6 +65,9 @@ public class TcpTransport : ITransport
         GC.SuppressFinalize(this);
     }
 
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="data"/> is null or empty.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if connection cannot be established or network stream is unavailable.</exception>
     public async Task SendAsync(byte[] data, CancellationToken cancellationToken = default)
     {
         if (data == null || data.Length == 0) throw new ArgumentNullException(nameof(data));
@@ -57,6 +79,17 @@ public class TcpTransport : ITransport
         await _stream.FlushAsync(cancellationToken);
     }
 
+    /// <inheritdoc/>
+    /// <param name="maxBytes">Maximum number of bytes to read in a single operation (default 4096).</param>
+    /// <returns>
+    /// A byte array containing the received data. 
+    /// May be partial if fewer bytes are available. Returns an empty array if no data is read within the timeout.
+    /// </returns>
+    /// <remarks>
+    /// This method handles timeouts and disconnections. If the read operation exceeds the timeout,
+    /// the connection is automatically disconnected and an empty array is returned.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">Thrown if the connection is lost during reading or an unexpected read error occurs.</exception>
     public async Task<byte[]> ReceiveAsync(int maxBytes = 4096, CancellationToken cancellationToken = default)
     {
         if (_client == null || !_client.Connected) await ConnectAsync(cancellationToken);
